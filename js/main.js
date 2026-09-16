@@ -9,6 +9,7 @@ document.addEventListener("DOMContentLoaded", () => {
   initReveal();
   initCounters();
   initContactForm();
+  initOrderForm();
 });
 
 /* 헤더: 스크롤 시 그림자 */
@@ -141,6 +142,58 @@ function initContactForm() {
         `이메일: ${email}\n` +
         `문의 유형: ${category}\n\n` +
         `문의 내용:\n${message}`
+    );
+
+    window.location.href = `mailto:info@hamilfood.co.kr?subject=${subject}&body=${body}`;
+    showStatus(status, "메일 작성 화면으로 이동합니다. 전송을 완료해 주세요.", true);
+    form.reset();
+  });
+}
+
+/* 온라인주문 폼 처리 (백엔드 연동 전: 메일 클라이언트로 전달) */
+function initOrderForm() {
+  const form = document.querySelector("#order-form");
+  const status = document.querySelector("#order-status");
+  if (!form) return;
+
+  const products = [
+    { key: "sundae", label: "순대" },
+    { key: "tteok", label: "떡볶이 떡" },
+    { key: "jeonbyeong", label: "메밀전병" },
+    { key: "mandu", label: "만두" },
+  ];
+
+  form.addEventListener("submit", (e) => {
+    e.preventDefault();
+
+    const name = form.querySelector("#order-name").value.trim();
+    const phone = form.querySelector("#order-phone").value.trim();
+    const note = form.querySelector("#order-note").value.trim();
+
+    const lines = [];
+    products.forEach(({ key, label }) => {
+      const size = form.querySelector(`#order-${key}-size`).value;
+      const qty = form.querySelector(`#order-${key}-qty`).value;
+      if (size || qty) {
+        lines.push(`- ${label}: ${size || "사이즈 미선택"} / ${qty || "중량 미선택"}`);
+      }
+    });
+
+    if (!name || !phone) {
+      showStatus(status, "주문자명과 연락처를 입력해 주세요.", false);
+      return;
+    }
+    if (lines.length === 0) {
+      showStatus(status, "최소 1개 이상의 상품을 선택해 주세요.", false);
+      return;
+    }
+
+    const subject = encodeURIComponent(`[해밀푸드 온라인주문] ${name}`);
+    const body = encodeURIComponent(
+      `주문자명: ${name}\n` +
+        `연락처: ${phone}\n\n` +
+        `주문 상품:\n${lines.join("\n")}\n\n` +
+        `비고:\n${note || "-"}`
     );
 
     window.location.href = `mailto:info@hamilfood.co.kr?subject=${subject}&body=${body}`;

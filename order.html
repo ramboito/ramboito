@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>온라인주문 | 해밀푸드</title>
+<meta name="description" content="순대, 떡볶이 떡, 메밀전병, 만두 등 해밀푸드 온라인 주문 페이지입니다." />
+<link rel="icon" href="assets/favicon.svg" type="image/svg+xml" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700;800;900&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/pretendard@1.3.9/dist/web/static/pretendard.css" />
+<link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container">
+    <a href="index.html" class="logo">
+      <span class="logo-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.48 19 2c1 2 2 4.18 2 8 0 5.5-4.78 10-10 10Z"/><path d="M2 21c0-3 1.85-5.36 5.08-6C9.5 14.52 11 13.75 12 12.5"/></svg></span>
+      <span>해밀푸드<span class="logo-sub">HAMIL FOOD</span></span>
+    </a>
+    <nav class="nav-desktop">
+      <a href="index.html" data-nav-link>홈</a>
+      <a href="about.html" data-nav-link>회사소개</a>
+      <a href="business.html" data-nav-link>사업영역</a>
+      <a href="products.html" data-nav-link>취급상품</a>
+      <a href="notice.html" data-nav-link>공지사항</a>
+      <a href="order.html" data-nav-link>온라인주문</a>
+      <a href="contact.html" data-nav-link>오시는길·문의</a>
+    </nav>
+    <div class="header-cta">
+      <a href="tel:0212345678" class="btn btn-outline">전화문의</a>
+      <a href="contact.html" class="btn btn-primary">견적 문의</a>
+    </div>
+    <button class="nav-toggle" aria-label="메뉴 열기" aria-expanded="false">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+    </button>
+  </div>
+  <nav class="nav-mobile">
+    <a href="index.html" data-nav-link>홈</a>
+    <a href="about.html" data-nav-link>회사소개</a>
+    <a href="business.html" data-nav-link>사업영역</a>
+    <a href="products.html" data-nav-link>취급상품</a>
+    <a href="notice.html" data-nav-link>공지사항</a>
+    <a href="order.html" data-nav-link>온라인주문</a>
+    <a href="contact.html" data-nav-link>오시는길·문의</a>
+    <div class="nav-mobile-cta">
+      <a href="tel:0212345678" class="btn btn-outline" style="flex:1">전화문의</a>
+      <a href="contact.html" class="btn btn-primary" style="flex:1">견적 문의</a>
+    </div>
+  </nav>
+</header>
+
+<main>
+
+  <section class="page-hero">
+    <div class="container">
+      <div class="breadcrumb">홈 / <span>온라인주문</span></div>
+      <h1>해밀푸드 온라인주문</h1>
+      <p>순대, 떡볶이 떡, 메밀전병, 만두를 원하시는 사이즈와 중량으로 간편하게 주문해 보세요.</p>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="container">
+      <div class="section-title center">
+        <span class="eyebrow">ORDER</span>
+        <h2>주문 상품 선택</h2>
+        <p>사이즈(대·중·소)와 중량(kg)을 선택한 뒤, 아래 주문 정보를 입력해 주세요. 사진은 임시 이미지이며 실제 상품과 다를 수 있습니다.</p>
+      </div>
+
+      <form id="order-form" novalidate>
+        <div class="grid grid-2">
+          <div class="card order-item reveal">
+            <div class="order-photo" role="img" aria-label="순대 (임시 이미지)"><span>🍥</span></div>
+            <h3>순대</h3>
+            <p class="order-desc">국내산 당면과 야채로 속을 꽉 채운 수제 순대</p>
+            <div class="form-row" style="margin-bottom:0;">
+              <div class="field">
+                <label for="order-sundae-size">사이즈</label>
+                <select id="order-sundae-size" name="order-sundae-size">
+                  <option value="">선택 안 함</option>
+                  <option value="대">대</option>
+                  <option value="중">중</option>
+                  <option value="소">소</option>
+                </select>
+              </div>
+              <div class="field">
+                <label for="order-sundae-qty">중량(kg)</label>
+                <select id="order-sundae-qty" name="order-sundae-qty">
+                  <option value="">선택 안 함</option>
+                  <option value="1kg">1kg</option>
+                  <option value="2kg">2kg</option>
+                  <option value="3kg">3kg</option>
+                  <option value="5kg">5kg</option>
+                </select>
+              </div>
+            </div>
+          </div>
+
+          <div class="card order-item reveal">
+            <div class="order-photo" role="img" aria-label="떡볶이 떡 (임시 이미지)"><span>🍡</span></div>
+            <h3>떡볶이 떡</h3>
+            <p class="order-desc">쫄깃한 식감의 즉석 떡볶이용 가래떡</p>
+            <div class="form-row" style="margin-bottom:0;">
+              <div class="field">
+                <label for="order-tteok-size">사이즈</label>
+                <select id="order-tteok-size" name="order-tteok-size">
+                  <option value="">선택 안 함</option>
+                  <option value="대">대</option>
+                  <option value="중">중</option>
+                  <option value="소">소</option>
+                </select>
+              </div>
+              <div class="field">
+                <label for="order-tteok-qty">중량(kg)</label>
+                <select id="order-tteok-qty" name="order-tteok-qty">
+                  <option value="">선택 안 함</option>
+                  <option value="1kg">1kg</option>
+                  <option value="2kg">2kg</option>
+                  <option value="3kg">3kg</option>
+                  <option value="5kg">5kg</option>
+                </select>
+              </div>
+            </div>
+          </div>
+
+          <div class="card order-item reveal">
+            <div class="order-photo" role="img" aria-label="메밀전병 (임시 이미지)"><span>🌯</span></div>
+            <h3>메밀전병</h3>
+            <p class="order-desc">메밀 반죽에 야채소를 채워 부친 전통 전병</p>
+            <div class="form-row" style="margin-bottom:0;">
+              <div class="field">
+                <label for="order-jeonbyeong-size">사이즈</label>
+                <select id="order-jeonbyeong-size" name="order-jeonbyeong-size">
+                  <option value="">선택 안 함</option>
+                  <option value="대">대</option>
+                  <option value="중">중</option>
+                  <option value="소">소</option>
+                </select>
+              </div>
+              <div class="field">
+                <label for="order-jeonbyeong-qty">중량(kg)</label>
+                <select id="order-jeonbyeong-qty" name="order-jeonbyeong-qty">
+                  <option value="">선택 안 함</option>
+                  <option value="1kg">1kg</option>
+                  <option value="2kg">2kg</option>
+                  <option value="3kg">3kg</option>
+                  <option value="5kg">5kg</option>
+                </select>
+              </div>
+            </div>
+          </div>
+
+          <div class="card order-item reveal">
+            <div class="order-photo" role="img" aria-label="만두 (임시 이미지)"><span>🥟</span></div>
+            <h3>만두</h3>
+            <p class="order-desc">고기와 야채가 듬뿍 들어간 수제 만두</p>
+            <div class="form-row" style="margin-bottom:0;">
+              <div class="field">
+                <label for="order-mandu-size">사이즈</label>
+                <select id="order-mandu-size" name="order-mandu-size">
+                  <option value="">선택 안 함</option>
+                  <option value="대">대</option>
+                  <option value="중">중</option>
+                  <option value="소">소</option>
+                </select>
+              </div>
+              <div class="field">
+                <label for="order-mandu-qty">중량(kg)</label>
+                <select id="order-mandu-qty" name="order-mandu-qty">
+                  <option value="">선택 안 함</option>
+                  <option value="1kg">1kg</option>
+                  <option value="2kg">2kg</option>
+                  <option value="3kg">3kg</option>
+                  <option value="5kg">5kg</option>
+                </select>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="form-card reveal" style="margin-top:32px;">
+          <h3 style="font-size:20px; font-weight:800; color:var(--color-dark); margin-bottom:6px;">주문 정보 입력</h3>
+          <p style="color:var(--color-text-light); font-size:14px; margin-bottom:24px;">위에서 선택한 상품과 함께 담당자가 확인 후 연락드립니다.</p>
+
+          <div class="form-row">
+            <div class="field">
+              <label for="order-name">주문자명 <span style="color:var(--color-accent);">*</span></label>
+              <input type="text" id="order-name" name="order-name" placeholder="홍길동" required />
+            </div>
+            <div class="field">
+              <label for="order-phone">연락처 <span style="color:var(--color-accent);">*</span></label>
+              <input type="tel" id="order-phone" name="order-phone" placeholder="010-0000-0000" required />
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="field full">
+              <label for="order-note">비고</label>
+              <textarea id="order-note" name="order-note" placeholder="배송 희망일, 포장 요청사항 등 자유롭게 남겨주세요."></textarea>
+            </div>
+          </div>
+
+          <button type="submit" class="btn btn-primary" style="width:100%;">주문 문의 보내기</button>
+          <p class="form-note">실제 결제·배송은 담당자 확인 후 별도 안내드립니다. (온라인 결제 기능은 준비 중입니다)</p>
+          <p id="order-status" class="form-status"></p>
+        </div>
+      </form>
+    </div>
+  </section>
+
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <div class="footer-grid">
+      <div class="footer-brand">
+        <a href="index.html" class="logo">
+          <span class="logo-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.48 19 2c1 2 2 4.18 2 8 0 5.5-4.78 10-10 10Z"/><path d="M2 21c0-3 1.85-5.36 5.08-6C9.5 14.52 11 13.75 12 12.5"/></svg></span>
+          <span>해밀푸드<span class="logo-sub">HAMIL FOOD</span></span>
+        </a>
+        <p>합리적인 소싱과 정교한 물류 시스템으로 신선한 먹거리를 가장 빠르고 안전하게 전달하는 종합 식품유통 기업, 해밀푸드입니다.</p>
+      </div>
+      <div class="footer-col">
+        <h4>바로가기</h4>
+        <ul>
+          <li><a href="about.html">회사소개</a></li>
+          <li><a href="business.html">사업영역</a></li>
+          <li><a href="products.html">취급상품</a></li>
+          <li><a href="notice.html">공지사항</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h4>고객지원</h4>
+        <ul>
+          <li><a href="order.html">온라인주문</a></li>
+          <li><a href="contact.html">오시는길·문의</a></li>
+          <li><a href="tel:0212345678">전화상담 02-1234-5678</a></li>
+          <li><a href="mailto:info@hamilfood.co.kr">info@hamilfood.co.kr</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h4>회사정보</h4>
+        <ul class="footer-info">
+          <li>주식회사 해밀푸드</li>
+          <li>대표이사 황봉기</li>
+          <li>사업자등록번호 123-45-67890</li>
+          <li>청룡길 156-104, 해밀푸드빌딩</li>
+        </ul>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span>&copy; 2026 Hamil Food Co., Ltd. All rights reserved.</span>
+      <span>Fresh Sourcing, Trusted Delivery.</span>
+    </div>
+  </div>
+</footer>
+
+<script src="js/main.js"></script>
+</body>
+</html>
