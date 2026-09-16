@@ -163,12 +163,29 @@ function initOrderForm() {
     { key: "mandu", label: "만두" },
   ];
 
+  /* 결제 방법 선택에 따라 상세 안내 영역 전환 */
+  const payRadios = form.querySelectorAll('input[name="pay-method"]');
+  const payDetails = form.querySelectorAll(".pay-detail");
+  const updatePayUI = () => {
+    const selected = form.querySelector('input[name="pay-method"]:checked')?.value;
+    payRadios.forEach((radio) => {
+      radio.closest(".pay-option")?.classList.toggle("active", radio.checked);
+    });
+    payDetails.forEach((detail) => {
+      detail.hidden = detail.id !== `pay-detail-${selected}`;
+    });
+  };
+  payRadios.forEach((radio) => radio.addEventListener("change", updatePayUI));
+  updatePayUI();
+
   form.addEventListener("submit", (e) => {
     e.preventDefault();
 
     const name = form.querySelector("#order-name").value.trim();
     const phone = form.querySelector("#order-phone").value.trim();
     const note = form.querySelector("#order-note").value.trim();
+    const payMethod = form.querySelector('input[name="pay-method"]:checked')?.value || "-";
+    const onsiteType = form.querySelector("#order-onsite-type")?.value;
 
     const lines = [];
     products.forEach(({ key, label }) => {
@@ -188,10 +205,13 @@ function initOrderForm() {
       return;
     }
 
+    const payLine = payMethod === "현장결제" ? `${payMethod} (${onsiteType || "카드"})` : payMethod;
+
     const subject = encodeURIComponent(`[해밀푸드 온라인주문] ${name}`);
     const body = encodeURIComponent(
       `주문자명: ${name}\n` +
-        `연락처: ${phone}\n\n` +
+        `연락처: ${phone}\n` +
+        `결제 방법: ${payLine}\n\n` +
         `주문 상품:\n${lines.join("\n")}\n\n` +
         `비고:\n${note || "-"}`
     );
@@ -199,6 +219,7 @@ function initOrderForm() {
     window.location.href = `mailto:info@hamilfood.co.kr?subject=${subject}&body=${body}`;
     showStatus(status, "메일 작성 화면으로 이동합니다. 전송을 완료해 주세요.", true);
     form.reset();
+    updatePayUI();
   });
 }
 

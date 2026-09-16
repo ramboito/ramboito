@@ -115,15 +115,14 @@ main { padding-top: var(--header-h); }
   height: var(--header-h);
   display: flex;
   align-items: center;
-  background: rgba(255, 255, 255, 0.9);
-  backdrop-filter: saturate(180%) blur(10px);
+  background: #ffffff;
   z-index: 1000;
-  transition: box-shadow 0.25s ease, background 0.25s ease;
-  border-bottom: 1px solid transparent;
+  transition: box-shadow 0.25s ease;
+  border-bottom: 1px solid var(--color-border);
+  box-shadow: 0 2px 12px rgba(25,31,40,0.05);
 }
 .site-header.scrolled {
   box-shadow: 0 4px 20px rgba(25,31,40,0.08);
-  border-bottom-color: var(--color-border);
 }
 .site-header .container {
   display: flex;
@@ -466,6 +465,29 @@ main { padding-top: var(--header-h); }
   font-weight: 700;
   margin-top: 16px;
 }
+.order-summary div { padding: 3px 0; }
+
+/* ---------- 결제 방법 ---------- */
+.pay-options { display: flex; gap: 10px; flex-wrap: wrap; }
+.pay-option {
+  display: flex; align-items: center; gap: 8px;
+  border: 1px solid var(--color-border);
+  border-radius: 999px;
+  padding: 10px 18px;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--color-text);
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+.pay-option input { accent-color: var(--color-primary); }
+.pay-option.active {
+  border-color: var(--color-primary);
+  background: var(--color-primary-light);
+  color: var(--color-primary-dark);
+}
+.pay-detail { margin-top: 16px; }
+.pay-detail[hidden] { display: none; }
 
 /* ---------- 공지사항 + 온라인주문 사이드 ---------- */
 .notice-layout { display: grid; grid-template-columns: 1.6fr 1fr; gap: 32px; align-items: start; }
