@@ -119,7 +119,7 @@ form?.addEventListener("submit", async (e) => {
   const date = document.querySelector("#ledger-date").value;
   const type = document.querySelector("#ledger-type").value;
   const item = document.querySelector("#ledger-item").value.trim();
-  const amount = Number(document.querySelector("#ledger-amount").value);
+  const amount = Number(document.querySelector("#ledger-amount").value.replace(/,/g, ""));
   const memo = document.querySelector("#ledger-memo").value.trim();
 
   if (!date || !item || !amount) {
@@ -156,3 +156,17 @@ function showFormStatus(message, ok) {
 // 오늘 날짜 기본값
 const dateInput = document.querySelector("#ledger-date");
 if (dateInput) dateInput.valueAsDate = new Date();
+
+// 금액 입력 시 천 단위 콤마 자동 표시
+const amountInput = document.querySelector("#ledger-amount");
+amountInput?.addEventListener("input", () => {
+  const digits = amountInput.value.replace(/[^0-9]/g, "");
+  amountInput.value = digits ? Number(digits).toLocaleString("ko-KR") : "";
+});
+
+// "새로 입력" 버튼: 폼 내용을 비우고 날짜만 오늘로 재설정
+document.querySelector("#ledger-reset")?.addEventListener("click", () => {
+  form?.reset();
+  if (dateInput) dateInput.valueAsDate = new Date();
+  document.querySelector("#ledger-item")?.focus();
+});

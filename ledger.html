@@ -78,7 +78,7 @@
             </div>
             <div class="field">
               <label for="ledger-amount">금액(원)</label>
-              <input type="number" id="ledger-amount" name="ledger-amount" placeholder="0" min="0" step="1" required />
+              <input type="text" id="ledger-amount" name="ledger-amount" inputmode="numeric" placeholder="0" required />
             </div>
           </div>
           <div class="form-row">
@@ -87,7 +87,10 @@
               <input type="text" id="ledger-memo" name="ledger-memo" placeholder="선택 입력" />
             </div>
           </div>
-          <button type="submit" class="btn btn-primary" style="width:100%;">저장</button>
+          <div style="display:flex; gap:10px;">
+            <button type="submit" class="btn btn-primary" style="flex:1;">저장</button>
+            <button type="button" id="ledger-reset" class="btn btn-outline" style="flex:1;">새로 입력</button>
+          </div>
           <p id="ledger-form-status" class="form-status"></p>
         </form>
       </div>
