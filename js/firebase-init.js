@@ -1,8 +1,6 @@
 // ===================================================
 // 해밀푸드 (Hamil Food) — Firebase 초기화
 // ===================================================
-// 아래 firebaseConfig 값은 Firebase 콘솔 > 프로젝트 설정 > 일반 >
-// "내 앱" 섹션에서 복사한 값으로 반드시 교체해야 합니다.
 // (Firebase config 값은 공개되어도 안전합니다 — 실제 접근 제어는
 //  Firestore 보안 규칙과 Authentication이 담당합니다.)
 
@@ -11,12 +9,12 @@ import { getAuth } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth
 import { getFirestore } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
 const firebaseConfig = {
-  apiKey: "YOUR_API_KEY",
-  authDomain: "YOUR_PROJECT_ID.firebaseapp.com",
-  projectId: "YOUR_PROJECT_ID",
-  storageBucket: "YOUR_PROJECT_ID.appspot.com",
-  messagingSenderId: "YOUR_SENDER_ID",
-  appId: "YOUR_APP_ID",
+  apiKey: "AIzaSyAYiH_TT2BsCdhVIC7DW2QAyW0xUDVutCg",
+  authDomain: "hamilfood-675ef.firebaseapp.com",
+  projectId: "hamilfood-675ef",
+  storageBucket: "hamilfood-675ef.firebasestorage.app",
+  messagingSenderId: "263019708975",
+  appId: "1:263019708975:web:dd018cc9f51c98d600fcda",
 };
 
 // 아이디 로그인을 위해 내부적으로 붙이는 가짜 이메일 도메인
