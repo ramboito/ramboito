@@ -669,3 +669,117 @@ main { padding-top: var(--header-h); }
 /* ---------- 스크롤 애니메이션 ---------- */
 .reveal { opacity: 0; transform: translateY(24px); transition: opacity 0.6s ease, transform 0.6s ease; }
 .reveal.in-view { opacity: 1; transform: translateY(0); }
+
+/* ---------- 로그인 ---------- */
+.login-wrap {
+  min-height: calc(100vh - var(--header-h));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 48px 20px;
+  background: var(--color-bg-alt);
+}
+.login-card {
+  width: 100%;
+  max-width: 380px;
+  background: #fff;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  padding: 40px 32px;
+  box-shadow: var(--shadow);
+}
+.login-card .logo { justify-content: center; margin-bottom: 8px; }
+.login-card h1 {
+  font-size: 20px;
+  font-weight: 800;
+  color: var(--color-dark);
+  text-align: center;
+  margin-top: 18px;
+  margin-bottom: 28px;
+}
+.login-error {
+  display: none;
+  margin-top: 4px;
+  font-size: 13px;
+  font-weight: 700;
+  color: #e0432c;
+  background: #fdecea;
+  border-radius: var(--radius-sm);
+  padding: 10px 14px;
+}
+.login-error.show { display: block; }
+
+/* ---------- 장부 ---------- */
+.ledger-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+.ledger-user {
+  font-size: 13.5px;
+  color: var(--color-text-light);
+}
+.ledger-user strong { color: var(--color-dark); }
+.ledger-summary { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin: 28px 0 36px; }
+.ledger-stat {
+  background: #fff;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius);
+  padding: 20px 22px;
+}
+.ledger-stat span { display: block; font-size: 13px; color: var(--color-text-light); font-weight: 700; margin-bottom: 6px; }
+.ledger-stat strong { font-size: 22px; font-weight: 800; color: var(--color-dark); }
+.ledger-stat.income strong { color: var(--color-primary); }
+.ledger-stat.expense strong { color: #e0432c; }
+
+.ledger-table-wrap {
+  background: #fff;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  margin-top: 28px;
+}
+.ledger-table { width: 100%; border-collapse: collapse; font-size: 14px; }
+.ledger-table th, .ledger-table td {
+  padding: 14px 16px;
+  text-align: left;
+  border-bottom: 1px solid var(--color-border);
+  white-space: nowrap;
+}
+.ledger-table th {
+  background: var(--color-bg-alt);
+  color: var(--color-text-light);
+  font-weight: 700;
+  font-size: 12.5px;
+}
+.ledger-table tbody tr:last-child td { border-bottom: none; }
+.ledger-badge {
+  display: inline-block;
+  font-size: 12px;
+  font-weight: 800;
+  padding: 3px 10px;
+  border-radius: 999px;
+}
+.ledger-badge.income { background: var(--color-primary-light); color: var(--color-primary-dark); }
+.ledger-badge.expense { background: #fdecea; color: #e0432c; }
+.ledger-amount { font-weight: 800; }
+.ledger-amount.plus { color: var(--color-primary-dark); }
+.ledger-amount.minus { color: #e0432c; }
+.ledger-delete {
+  border: none;
+  background: transparent;
+  color: var(--color-text-light);
+  font-size: 14px;
+  cursor: pointer;
+  padding: 4px 8px;
+  border-radius: 6px;
+}
+.ledger-delete:hover { background: #fdecea; color: #e0432c; }
+.ledger-empty { display: none; text-align: center; padding: 40px; color: var(--color-text-light); font-size: 14px; }
+
+@media (max-width: 700px) {
+  .ledger-summary { grid-template-columns: 1fr; }
+  .ledger-table-wrap { overflow-x: auto; }
+}

@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>장부 | 해밀푸드</title>
+<meta name="robots" content="noindex" />
+<link rel="icon" href="assets/favicon.svg" type="image/svg+xml" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700;800;900&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/pretendard@1.3.9/dist/web/static/pretendard.css" />
+<link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container">
+    <a href="index.html" class="logo">
+      <span class="logo-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.48 19 2c1 2 2 4.18 2 8 0 5.5-4.78 10-10 10Z"/><path d="M2 21c0-3 1.85-5.36 5.08-6C9.5 14.52 11 13.75 12 12.5"/></svg></span>
+      <span>해밀푸드<span class="logo-sub">HAMIL FOOD</span></span>
+    </a>
+  </div>
+</header>
+
+<main>
+  <section class="page-hero">
+    <div class="container ledger-header">
+      <div>
+        <div class="breadcrumb">홈 / <span>내부 장부</span></div>
+        <h1>장부 입력·열람</h1>
+      </div>
+      <div class="ledger-user">
+        <span id="ledger-user" style="color:#fff; font-weight:700;"></span> 님으로 로그인됨
+        &nbsp;·&nbsp;
+        <a href="#" id="ledger-logout" style="color:#fff; text-decoration:underline;">로그아웃</a>
+      </div>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="container">
+
+      <div class="ledger-summary">
+        <div class="ledger-stat income">
+          <span>총 수입</span>
+          <strong id="sum-income">0원</strong>
+        </div>
+        <div class="ledger-stat expense">
+          <span>총 지출</span>
+          <strong id="sum-expense">0원</strong>
+        </div>
+        <div class="ledger-stat">
+          <span>잔액</span>
+          <strong id="sum-balance">0원</strong>
+        </div>
+      </div>
+
+      <div class="form-card">
+        <h3 style="font-size:18px; font-weight:800; color:var(--color-dark); margin-bottom:20px;">항목 추가</h3>
+        <form id="ledger-form" novalidate>
+          <div class="form-row">
+            <div class="field">
+              <label for="ledger-date">날짜</label>
+              <input type="date" id="ledger-date" name="ledger-date" required />
+            </div>
+            <div class="field">
+              <label for="ledger-type">구분</label>
+              <select id="ledger-type" name="ledger-type">
+                <option value="수입">수입</option>
+                <option value="지출">지출</option>
+              </select>
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="field">
+              <label for="ledger-item">항목</label>
+              <input type="text" id="ledger-item" name="ledger-item" placeholder="예: 순대 판매, 원재료 매입" required />
+            </div>
+            <div class="field">
+              <label for="ledger-amount">금액(원)</label>
+              <input type="number" id="ledger-amount" name="ledger-amount" placeholder="0" min="0" step="1" required />
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="field full">
+              <label for="ledger-memo">메모</label>
+              <input type="text" id="ledger-memo" name="ledger-memo" placeholder="선택 입력" />
+            </div>
+          </div>
+          <button type="submit" class="btn btn-primary" style="width:100%;">저장</button>
+          <p id="ledger-form-status" class="form-status"></p>
+        </form>
+      </div>
+
+      <div class="ledger-table-wrap">
+        <table class="ledger-table">
+          <thead>
+            <tr>
+              <th>날짜</th>
+              <th>구분</th>
+              <th>항목</th>
+              <th>금액</th>
+              <th>메모</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody id="ledger-tbody"></tbody>
+        </table>
+        <p id="ledger-empty" class="ledger-empty">등록된 장부 항목이 없습니다.</p>
+      </div>
+
+    </div>
+  </section>
+</main>
+
+<script type="module" src="js/ledger.js"></script>
+</body>
+</html>
