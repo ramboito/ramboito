@@ -783,3 +783,6 @@ main { padding-top: var(--header-h); }
   .ledger-summary { grid-template-columns: 1fr; }
   .ledger-table-wrap { overflow-x: auto; }
 }
+
+.btn-black { background: #000; color: #fff; border-color: #000; }
+.btn-black:hover { background: #222; border-color: #222; }
