@@ -32,6 +32,8 @@
       <div class="ledger-user">
         <span id="ledger-user" style="color:#fff; font-weight:700;"></span> 님으로 로그인됨
         &nbsp;·&nbsp;
+        <a href="dashboard.html" style="color:#fff; text-decoration:underline;">📊 통계 대시보드</a>
+        &nbsp;·&nbsp;
         <a href="#" id="ledger-logout" style="color:#fff; text-decoration:underline;">로그아웃</a>
       </div>
     </div>
@@ -66,7 +68,9 @@
             <div class="field">
               <label for="ledger-type">구분</label>
               <select id="ledger-type" name="ledger-type">
-                <option value="수입">수입</option>
+                <option value="매출">매출 (국내)</option>
+                <option value="수출">수출 (해외)</option>
+                <option value="수입">기타수입</option>
                 <option value="지출">지출</option>
               </select>
             </div>

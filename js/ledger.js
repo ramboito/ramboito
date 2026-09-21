@@ -28,6 +28,8 @@ const sumExpenseEl = document.querySelector("#sum-expense");
 const sumBalanceEl = document.querySelector("#sum-balance");
 
 const won = (n) => `${n.toLocaleString("ko-KR")}원`;
+const INCOME_TYPES = ["매출", "수출", "수입"];
+const BADGE_CLASS = { 매출: "sales", 수출: "export", 수입: "income", 지출: "expense" };
 
 onAuthStateChanged(auth, (user) => {
   if (!user) {
@@ -76,18 +78,19 @@ function renderEntries(entries) {
   tbody.innerHTML = entries
     .map((entry) => {
       const amount = Number(entry.amount) || 0;
-      if (entry.type === "수입") income += amount;
+      const isIncome = INCOME_TYPES.includes(entry.type);
+      if (isIncome) income += amount;
       else expense += amount;
 
-      const badgeClass = entry.type === "수입" ? "ledger-badge income" : "ledger-badge expense";
-      const sign = entry.type === "수입" ? "+" : "-";
+      const badgeClass = `ledger-badge ${BADGE_CLASS[entry.type] || "expense"}`;
+      const sign = isIncome ? "+" : "-";
 
       return `
         <tr>
           <td>${entry.date || "-"}</td>
           <td><span class="${badgeClass}">${entry.type}</span></td>
           <td>${escapeHtml(entry.item || "-")}</td>
-          <td class="ledger-amount ${entry.type === "수입" ? "plus" : "minus"}">${sign}${won(amount)}</td>
+          <td class="ledger-amount ${isIncome ? "plus" : "minus"}">${sign}${won(amount)}</td>
           <td>${escapeHtml(entry.memo || "-")}</td>
           <td><button type="button" class="ledger-delete" data-id="${entry.id}" aria-label="삭제">✕</button></td>
         </tr>
