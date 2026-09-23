@@ -13,6 +13,7 @@ import {
   orderBy,
   onSnapshot,
   serverTimestamp,
+  deleteField,
 } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
 const userLabel = document.querySelector("#ko-user");
@@ -35,6 +36,17 @@ const summaryEl = document.querySelector("#status-summary");
 const STATUSES = ["신규", "처리중", "완료", "취소"];
 const STATUS_CLASS = { 신규: "status-new", 처리중: "status-processing", 완료: "status-done", 취소: "status-cancelled" };
 const STATUS_ICON = { 신규: "🆕", 처리중: "⏳", 완료: "✅", 취소: "✖️" };
+
+// 출처 배지: 자동접수 챗봇(hamilBotSkill)은 mode로 자동/확인 접수를 구분하고,
+// mode가 없는 챗봇 주문은 기존 "주문하기" 질문형 시나리오(kakaoOrderSkill)입니다.
+function sourceBadge(o) {
+  if (o.source !== "kakao-bot") return { cls: "source-manual", label: "✍️ 수동" };
+  if (o.mode === "auto") return { cls: "source-bot source-auto", label: "🤖 자동접수" };
+  if (o.mode === "manual") return { cls: "source-bot", label: "🤖 확인접수" };
+  return { cls: "source-bot", label: "🤖 챗봇" };
+}
+
+const EXTRACTOR_LABEL = { claude: "Claude AI", rules: "규칙 기반" };
 
 let orders = [];
 let editingId = null;
@@ -181,7 +193,14 @@ form.addEventListener("submit", async (e) => {
 
   try {
     if (editingId) {
-      await updateDoc(doc(db, "kakaoOrders", editingId), payload);
+      const original = orders.find((x) => x.id === editingId);
+      const update = { ...payload };
+      // 챗봇이 만든 구조화 상품 목록·요약은 상품을 고치면 더 이상 맞지 않으므로 지웁니다.
+      if (original && original.items !== payload.items) {
+        if (original.itemsList) update.itemsList = deleteField();
+        if (original.summary) update.summary = deleteField();
+      }
+      await updateDoc(doc(db, "kakaoOrders", editingId), update);
       showFormMsg("주문을 수정했습니다.", true);
     } else {
       await addDoc(collection(db, "kakaoOrders"), {
@@ -238,7 +257,7 @@ function filteredOrders() {
   return orders.filter((o) => {
     if (statusFilter !== "all" && o.status !== statusFilter) return false;
     if (search) {
-      const hay = `${o.name || ""} ${o.phone || ""} ${o.rawText || ""} ${o.items || ""}`.toLowerCase();
+      const hay = `${o.name || ""} ${o.phone || ""} ${o.rawText || ""} ${o.items || ""} ${o.summary || ""}`.toLowerCase();
       if (!hay.includes(search)) return false;
     }
     return true;
@@ -252,7 +271,7 @@ function renderList() {
   tbody.innerHTML = rows
     .map((o) => {
       const itemsPreview = (o.items || "-").split("\n")[0] + ((o.items || "").split("\n").length > 1 ? " …" : "");
-      const isBot = o.source === "kakao-bot";
+      const badge = sourceBadge(o);
       return `
       <tr data-id="${o.id}">
         <td>${formatTime(o.createdAt)}</td>
@@ -261,10 +280,10 @@ function renderList() {
             ${STATUSES.map((s) => `<option value="${s}" ${o.status === s ? "selected" : ""}>${s}</option>`).join("")}
           </select>
         </td>
-        <td><span class="source-badge ${isBot ? "source-bot" : "source-manual"}">${isBot ? "🤖 챗봇" : "✍️ 수동"}</span></td>
+        <td><span class="source-badge ${badge.cls}">${badge.label}</span></td>
         <td>${escapeHtml(o.name || "-")}</td>
         <td>${escapeHtml(o.phone || "-")}</td>
-        <td title="${escapeHtml(o.items || "")}">${escapeHtml(itemsPreview)}</td>
+        <td title="${escapeHtml(o.summary || o.items || "")}">${escapeHtml(itemsPreview)}</td>
         <td><button type="button" class="icon-link-btn detail-toggle" data-id="${o.id}">원문보기</button></td>
         <td>
           <button type="button" class="icon-link-btn edit-btn" data-id="${o.id}">수정</button>
@@ -274,8 +293,12 @@ function renderList() {
       <tr class="detail-row" id="detail-${o.id}" hidden>
         <td colspan="8">
           <div class="detail-box">
+            ${o.summary ? `<div><strong>AI 요약</strong><span>${escapeHtml(o.summary)}</span></div>` : ""}
             <div><strong>주소</strong><span>${escapeHtml(o.address || "-")}</span></div>
+            ${o.requestedDate ? `<div><strong>희망일</strong><span>${escapeHtml(o.requestedDate)}</span></div>` : ""}
+            ${o.items ? `<div><strong>상품</strong><span style="white-space:pre-line;">${escapeHtml(o.items)}</span></div>` : ""}
             <div><strong>메모</strong><span>${escapeHtml(o.memo || "-")}</span></div>
+            ${o.extractor ? `<div><strong>추출 방식</strong><span>${EXTRACTOR_LABEL[o.extractor] || escapeHtml(o.extractor)}</span></div>` : ""}
             <div class="detail-raw"><strong>카톡 원문</strong><pre>${escapeHtml(o.rawText || "")}</pre></div>
           </div>
         </td>

@@ -90,3 +90,20 @@ https://asia-northeast3-hamilfood-675ef.cloudfunctions.net/kakaoOrderSkill
   `cd functions && npm test`로 실행할 수 있습니다.
 - 카카오 스킬 서버는 요청 후 5초 안에 응답해야 합니다. Firestore 저장은 보통 1초 이내라 문제없지만,
   만약 타임아웃이 잦다면 오픈빌더의 "콜백" 기능(최대 1분)으로 전환할 수 있습니다.
+
+## 자동접수 챗봇 (자유 형식 주문 + 고객 동의) 함께 쓰기
+
+위의 "주문하기" 블록은 이름·연락처·상품·주소를 차례로 묻는 **질문형**입니다. 고객이 자유롭게 쓴 주문
+메시지(예: `순대 2kg 2개 보내주세요 홍길동 010-1234-5678`)도 받으려면, 별도 저장소
+[`ramboito/-`의 `hamilfood-bot/`](https://github.com/ramboito/-/tree/claude/kakao-chatbot-hamil-food-hviylu/hamilfood-bot)
+에 있는 자동접수 챗봇을 **폴백 블록**에 연결하세요. 배포 방법은 그 폴더의 `README.md`에 있습니다.
+
+- 처음 주문한 고객에게 정리 결과와 개인정보 수집 안내를 보여주고, **동의한 고객만 이후 주문을 자동 접수**합니다.
+  동의하지 않은 고객은 주문마다 `접수`를 눌러야 저장됩니다.
+- Claude가 이름·연락처·배송지·희망일·상품(규격/수량)을 추출하고 요약을 만듭니다.
+- 같은 `kakaoOrders` 컬렉션에 저장되므로 `kakao-orders.html`에 바로 나타납니다. 출처 배지는
+  **🤖 자동접수**(동의 고객) / **🤖 확인접수**(고객이 접수 버튼으로 확정) / **🤖 챗봇**(위 질문형 블록) /
+  **✍️ 수동**(직원이 붙여넣기)으로 구분되고, "원문보기"를 누르면 AI 요약·희망일·추출 방식이 보입니다.
+- 이 챗봇은 별도 Firebase 코드베이스(`hamilbot`)로 배포되어, 이 저장소의 `kakaoOrderSkill`을 덮어쓰지 않습니다.
+- 고객별 동의 기록은 `kakaoBotUsers` 컬렉션에 저장됩니다. 서버만 쓰는 컬렉션이므로 Firestore 규칙에서
+  클라이언트 접근을 막아 두세요: `match /kakaoBotUsers/{id} { allow read, write: if false; }`
