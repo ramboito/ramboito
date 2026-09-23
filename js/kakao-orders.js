@@ -63,7 +63,7 @@ function initOrders() {
       renderAll();
     },
     (err) => {
-      tbody.innerHTML = `<tr><td colspan="7" style="text-align:center; padding:24px; color:var(--color-text-light);">불러오기 실패: ${err.message}</td></tr>`;
+      tbody.innerHTML = `<tr><td colspan="8" style="text-align:center; padding:24px; color:var(--color-text-light);">불러오기 실패: ${err.message}</td></tr>`;
     }
   );
 }
@@ -186,6 +186,7 @@ form.addEventListener("submit", async (e) => {
     } else {
       await addDoc(collection(db, "kakaoOrders"), {
         ...payload,
+        source: "manual",
         createdBy: auth.currentUser.email,
         createdAt: serverTimestamp(),
       });
@@ -251,6 +252,7 @@ function renderList() {
   tbody.innerHTML = rows
     .map((o) => {
       const itemsPreview = (o.items || "-").split("\n")[0] + ((o.items || "").split("\n").length > 1 ? " …" : "");
+      const isBot = o.source === "kakao-bot";
       return `
       <tr data-id="${o.id}">
         <td>${formatTime(o.createdAt)}</td>
@@ -259,6 +261,7 @@ function renderList() {
             ${STATUSES.map((s) => `<option value="${s}" ${o.status === s ? "selected" : ""}>${s}</option>`).join("")}
           </select>
         </td>
+        <td><span class="source-badge ${isBot ? "source-bot" : "source-manual"}">${isBot ? "🤖 챗봇" : "✍️ 수동"}</span></td>
         <td>${escapeHtml(o.name || "-")}</td>
         <td>${escapeHtml(o.phone || "-")}</td>
         <td title="${escapeHtml(o.items || "")}">${escapeHtml(itemsPreview)}</td>
@@ -269,7 +272,7 @@ function renderList() {
         </td>
       </tr>
       <tr class="detail-row" id="detail-${o.id}" hidden>
-        <td colspan="7">
+        <td colspan="8">
           <div class="detail-box">
             <div><strong>주소</strong><span>${escapeHtml(o.address || "-")}</span></div>
             <div><strong>메모</strong><span>${escapeHtml(o.memo || "-")}</span></div>
