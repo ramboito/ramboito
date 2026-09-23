@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>카톡 주문 정리 | 해밀푸드</title>
+<meta name="robots" content="noindex" />
+<link rel="icon" href="assets/favicon.svg" type="image/svg+xml" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700;800;900&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/pretendard@1.3.9/dist/web/static/pretendard.css" />
+<link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container">
+    <a href="index.html" class="logo">
+      <span class="logo-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.48 19 2c1 2 2 4.18 2 8 0 5.5-4.78 10-10 10Z"/><path d="M2 21c0-3 1.85-5.36 5.08-6C9.5 14.52 11 13.75 12 12.5"/></svg></span>
+      <span>해밀푸드<span class="logo-sub">HAMIL FOOD</span></span>
+    </a>
+  </div>
+</header>
+
+<main>
+  <section class="page-hero">
+    <div class="container ledger-header">
+      <div>
+        <div class="breadcrumb">홈 / <span>카톡 주문 정리</span></div>
+        <h1>카톡 주문 정리</h1>
+      </div>
+      <div class="ledger-user">
+        <span id="ko-user" style="color:#fff; font-weight:700;"></span> 님으로 로그인됨
+        &nbsp;·&nbsp;
+        <a href="ledger.html" style="color:#fff; text-decoration:underline;">📒 장부 입력</a>
+        &nbsp;·&nbsp;
+        <a href="dashboard.html" style="color:#fff; text-decoration:underline;">📊 통계 대시보드</a>
+        &nbsp;·&nbsp;
+        <a href="#" id="ko-logout" style="color:#fff; text-decoration:underline;">로그아웃</a>
+      </div>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="container">
+
+      <div class="kpi-grid" id="status-summary"></div>
+
+      <div class="form-card">
+        <h3 style="font-size:18px; font-weight:800; color:var(--color-dark); margin-bottom:6px;">카톡 메시지 붙여넣기</h3>
+        <p style="color:var(--color-text-light); font-size:13.5px; margin-bottom:20px;">
+          고객이 카톡으로 보낸 주문 메시지를 그대로 복사해서 아래에 붙여넣으세요. 원문은 수정 없이 저장되며,
+          이름·연락처·주소·상품은 자동으로 추출을 시도합니다 (틀리면 직접 고쳐주세요).
+        </p>
+
+        <form id="ko-form" novalidate>
+          <div class="form-row">
+            <div class="field full">
+              <label for="ko-raw">카톡 원문 <span style="color:var(--color-accent);">*</span></label>
+              <textarea id="ko-raw" name="ko-raw" style="min-height:150px;" placeholder="예)&#10;홍길동&#10;010-1234-5678&#10;순대 2kg 2개, 떡볶이떡 1kg 1개&#10;배송지: 서울시 강남구 ..." required></textarea>
+            </div>
+          </div>
+          <div style="display:flex; justify-content:flex-end; margin:-6px 0 16px;">
+            <button type="button" id="ko-parse" class="btn btn-outline btn-sm">📋 내용에서 자동으로 채우기</button>
+          </div>
+
+          <div class="form-row">
+            <div class="field">
+              <label for="ko-name">주문자명</label>
+              <input type="text" id="ko-name" name="ko-name" placeholder="자동 추출 (수정 가능)" />
+            </div>
+            <div class="field">
+              <label for="ko-phone">연락처</label>
+              <input type="text" id="ko-phone" name="ko-phone" placeholder="자동 추출 (수정 가능)" />
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="field full">
+              <label for="ko-address">배송지/주소</label>
+              <input type="text" id="ko-address" name="ko-address" placeholder="자동 추출 (수정 가능)" />
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="field full">
+              <label for="ko-items">주문 상품</label>
+              <textarea id="ko-items" name="ko-items" placeholder="자동 추출 (수정 가능)"></textarea>
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="field">
+              <label for="ko-status">상태</label>
+              <select id="ko-status" name="ko-status">
+                <option value="신규">신규</option>
+                <option value="처리중">처리중</option>
+                <option value="완료">완료</option>
+                <option value="취소">취소</option>
+              </select>
+            </div>
+            <div class="field">
+              <label for="ko-memo">메모</label>
+              <input type="text" id="ko-memo" name="ko-memo" placeholder="선택 입력" />
+            </div>
+          </div>
+
+          <div style="display:flex; gap:10px;">
+            <button type="submit" class="btn btn-primary" style="flex:1;">주문 저장</button>
+            <button type="button" id="ko-reset" class="btn btn-outline" style="flex:1;">새로 입력</button>
+          </div>
+          <p id="ko-status-msg" class="form-status"></p>
+        </form>
+      </div>
+
+      <div class="filter-bar">
+        <input type="text" id="ko-search" placeholder="이름 · 연락처 · 원문 검색" />
+        <select id="ko-filter-status">
+          <option value="all">전체 상태</option>
+          <option value="신규">신규</option>
+          <option value="처리중">처리중</option>
+          <option value="완료">완료</option>
+          <option value="취소">취소</option>
+        </select>
+      </div>
+
+      <div class="ledger-table-wrap" style="margin-top:0;">
+        <table class="ledger-table">
+          <thead>
+            <tr>
+              <th>접수시각</th>
+              <th>상태</th>
+              <th>주문자</th>
+              <th>연락처</th>
+              <th>상품</th>
+              <th></th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody id="ko-tbody"></tbody>
+        </table>
+        <p id="ko-empty" class="ledger-empty">아직 등록된 주문이 없습니다.</p>
+      </div>
+
+    </div>
+  </section>
+</main>
+
+<script type="module" src="js/kakao-orders.js"></script>
+</body>
+</html>
