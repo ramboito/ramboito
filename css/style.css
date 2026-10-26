@@ -10,7 +10,8 @@
   --color-accent-dark: #00a396;
   --color-dark: #191f28;
   --color-text: #333d4b;
-  --color-text-light: #8b95a1;
+  --color-text-light: #6b7684;
+  --color-required: #e0432c;
   --color-bg: #ffffff;
   --color-bg-alt: #f2f4f6;
   --color-border: #e5e8eb;
@@ -938,3 +939,36 @@ main { padding-top: var(--header-h); }
 @media (max-width: 700px) {
   .filter-bar input { min-width: 0; }
 }
+
+/* ---------- 가독성·정돈 보강 ---------- */
+.required { color: var(--color-required); }
+
+/* 표 가독성: 행 구분을 명확히 */
+.ledger-table tbody tr { transition: background 0.15s ease; }
+.ledger-table tbody tr:hover { background: var(--color-bg-alt); }
+.ledger-table td { color: var(--color-text); }
+
+/* 키보드 포커스 표시 (접근성) */
+a:focus-visible,
+button:focus-visible,
+.btn:focus-visible,
+.nav-desktop a:focus-visible,
+.nav-mobile a:focus-visible,
+.pay-option:focus-within {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+  border-radius: 8px;
+}
+
+/* 본문 텍스트 줄 길이 제한으로 가독성 향상 */
+.notice-body, .order-desc, .card p, .login-card p {
+  max-width: 68ch;
+}
+
+/* 공지/카드 제목과 본문 사이 리듬 통일 */
+.notice-item summary { line-height: 1.5; }
+.notice-item summary span:first-child { word-break: keep-all; }
+
+/* 섹션 타이틀 하단 여백을 본문과 더 자연스럽게 연결 */
+.section-title h2 { word-break: keep-all; }
+.hero h1, .page-hero h1 { word-break: keep-all; }
