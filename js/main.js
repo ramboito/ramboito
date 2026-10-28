@@ -163,6 +163,38 @@ function initOrderForm() {
     { key: "mandu", label: "만두" },
   ];
 
+  /* 선택한 상품을 실시간으로 요약해 보여주기 (주문 전 확인 시간 단축) */
+  const cartList = document.querySelector("#order-cart-list");
+  const cartCount = document.querySelector("#order-cart-count");
+  const updateCartSummary = () => {
+    if (!cartList || !cartCount) return;
+    const picked = products
+      .map(({ key, label }) => {
+        const size = form.querySelector(`#order-${key}-size`)?.value;
+        const qty = form.querySelector(`#order-${key}-qty`)?.value;
+        return size || qty ? { label, size, qty } : null;
+      })
+      .filter(Boolean);
+
+    cartCount.textContent = `${picked.length}개`;
+
+    if (picked.length === 0) {
+      cartList.innerHTML = `<li class="muted">아직 선택한 상품이 없습니다. 위에서 사이즈·중량을 골라주세요.</li>`;
+      return;
+    }
+    cartList.innerHTML = picked
+      .map(
+        ({ label, size, qty }) =>
+          `<li><span>${label}</span><strong>${size || "사이즈 미선택"} · ${qty || "중량 미선택"}</strong></li>`
+      )
+      .join("");
+  };
+  products.forEach(({ key }) => {
+    form.querySelector(`#order-${key}-size`)?.addEventListener("change", updateCartSummary);
+    form.querySelector(`#order-${key}-qty`)?.addEventListener("change", updateCartSummary);
+  });
+  updateCartSummary();
+
   /* 결제 방법 선택에 따라 상세 안내 영역 전환 */
   const payRadios = form.querySelectorAll('input[name="pay-method"]');
   const payDetails = form.querySelectorAll(".pay-detail");
@@ -220,6 +252,7 @@ function initOrderForm() {
     showStatus(status, "메일 작성 화면으로 이동합니다. 전송을 완료해 주세요.", true);
     form.reset();
     updatePayUI();
+    updateCartSummary();
   });
 }
 
