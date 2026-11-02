@@ -229,9 +229,17 @@ function initCatalog() {
     brandGrid.innerHTML = C.brands
       .map(
         (b) => `
-        <a class="browse-card" href="order.html?brand=${encodeURIComponent(b.short)}">
-          <strong>${escapeHtml(b.name)}</strong>
-          <span>${b.count}개 품목</span>
+        <a class="brand-card" href="order.html?brand=${encodeURIComponent(b.short)}" style="--brand:${b.color}">
+          <div class="brand-logo">${
+            b.logo
+              ? `<img src="${escapeHtml(b.logo)}" alt="${escapeHtml(b.name)} 로고" loading="lazy" />`
+              : `<span aria-hidden="true">${escapeHtml(b.name)}</span>`
+          }</div>
+          <div class="brand-body">
+            <strong>${escapeHtml(b.name)}</strong>
+            <span>${escapeHtml(b.topCats.join(" · "))}</span>
+            <em>${b.count}개 품목 보기 ›</em>
+          </div>
         </a>`
       )
       .join("");

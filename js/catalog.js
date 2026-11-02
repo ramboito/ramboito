@@ -69,6 +69,25 @@
     "면·육수·소스": "🍜", "튀김·전·간식": "🍤", "기타": "📦",
   };
 
+  // ---------------------------------------------------
+  // ③ 브랜드 이미지 — 취급상품 '브랜드별로 보기'에 표시
+  // ---------------------------------------------------
+  //  logo  : 로고 이미지 경로 (assets/brands 폴더에 올리고 적어주세요)
+  //  color : 로고가 없을 때 표시되는 브랜드 이름판 색상
+  const BRAND_LOOK = {
+    JY: { color: "#e8590c" /* , logo: "assets/brands/JY.png" */ },
+    OY: { color: "#1c7ed6" },
+    HU: { color: "#2f9e44" },
+    BG: { color: "#7048e8" },
+    SJ: { color: "#c2255c" },
+    AH: { color: "#f08c00" },
+    MS: { color: "#0c8599" },
+    MM: { color: "#5c940d" },
+    DS: { color: "#ae3ec9" },
+    DR: { color: "#364fc7" },
+    RS: { color: "#e03131" },
+  };
+
   const BRANDS = [
     {
       name: "진영식품", short: "진영", slug: "JY",
@@ -471,7 +490,17 @@
 
   window.HamilCatalog = {
     items,
-    brands: BRANDS.map((b) => ({ short: b.short, name: b.name, count: b.items.length })),
+    brands: BRANDS.map((b) => {
+      const look = BRAND_LOOK[b.slug] || {};
+      const own = items.filter((it) => it.brand === b.short);
+      // 품목이 많은 종류 순으로 대표 종류 2개
+      const topCats = CATEGORY_ORDER.map((c) => [c, own.filter((it) => it.category === c).length])
+        .filter(([, n]) => n)
+        .sort((a, b2) => b2[1] - a[1])
+        .slice(0, 2)
+        .map(([c]) => c);
+      return { short: b.short, name: b.name, slug: b.slug, count: b.items.length, color: look.color || "#3182f6", logo: look.logo || "", topCats };
+    }),
     categories: CATEGORY_ORDER.filter((c) => items.some((it) => it.category === c)),
     byId: (id) => items.find((it) => it.id === id),
 
