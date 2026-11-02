@@ -4,7 +4,7 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>온라인주문 | 해밀푸드</title>
-<meta name="description" content="순대, 떡볶이 떡, 메밀전병, 만두 등 해밀푸드 온라인 주문 페이지입니다." />
+<meta name="description" content="떡볶이떡, 어묵, 만두, 햄·소시지 등 216개 냉동·분식 식자재를 검색하고 바로 주문하세요." />
 <link rel="icon" href="assets/favicon.svg" type="image/svg+xml" />
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700;800;900&display=swap" rel="stylesheet" />
@@ -55,126 +55,151 @@
 
 <main>
 
-  <section class="page-hero">
+  <section class="page-hero page-hero-compact">
     <div class="container">
       <div class="breadcrumb">홈 / <span>온라인주문</span></div>
-      <h1>해밀푸드 온라인주문</h1>
-      <p>순대, 떡볶이 떡, 메밀전병, 만두를 개인·사업자 누구나 1봉부터 간편하게 주문하세요.</p>
+      <h1>온라인주문</h1>
+      <p><span data-catalog-stat="brands">11</span>개 브랜드 · <span data-catalog-stat="items">216</span>개 품목을 검색해서 바로 담으세요. 개인·사업자 누구나 1봉부터 주문할 수 있습니다.</p>
     </div>
   </section>
 
-  <section class="section">
-    <div class="container">
-      <div class="section-title center">
-        <span class="eyebrow">ORDER</span>
-        <h2>상품 담기</h2>
-        <p>원하는 무게(kg)를 고르면 몇 봉(팩)인지 자동으로 계산해 장바구니에 담아드립니다. 개인 고객도 1봉부터 주문할 수 있습니다. 사진은 임시 이미지입니다.</p>
+  <!-- 1단계: 상품 담기 -->
+  <section class="section shop-section" id="shop-view">
+    <div class="container shop-layout">
+      <div class="shop-main">
+        <div class="shop-toolbar">
+          <div class="search-box">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><line x1="20" y1="20" x2="16.65" y2="16.65"/></svg>
+            <input type="search" id="shop-search" placeholder="품목명·브랜드·초성으로 검색 (예: 쌀떡, 오양 소세지, ㅁㄷ)" aria-label="품목 검색" autocomplete="off" />
+            <button type="button" class="search-clear" id="shop-search-clear" aria-label="검색어 지우기" hidden>✕</button>
+          </div>
+          <div class="chip-group chip-scroll" id="shop-categories" role="tablist" aria-label="카테고리"></div>
+          <div class="shop-subbar">
+            <select id="shop-brand" aria-label="브랜드 선택"></select>
+            <span class="shop-count" id="shop-count"></span>
+          </div>
+        </div>
+
+        <div class="prod-list" id="shop-list"></div>
+        <div class="shop-empty" id="shop-empty" hidden>
+          <strong>검색 결과가 없습니다.</strong>
+          <p>다른 이름이나 초성(예: ㄸㅂㅇ)으로 찾아보시거나, 찾는 품목이 없으면 비고란에 적어 주문해 주세요.</p>
+        </div>
       </div>
 
-      <form id="order-form" novalidate>
-        <div class="grid grid-2" id="shop-grid"></div>
+      <aside class="shop-cart" aria-label="장바구니">
+        <div class="shop-cart-head">
+          <h2>장바구니 <span class="cart-badge" id="cart-count">0</span></h2>
+          <button type="button" class="link-btn" id="cart-clear">비우기</button>
+        </div>
+        <ul class="cart-lines" id="cart-lines"></ul>
+        <div class="cart-total" id="cart-total"></div>
+        <button type="button" class="btn btn-primary" id="go-checkout" style="width:100%;" disabled>주문서 작성하기</button>
+        <p class="form-note">가격은 주문 확인 후 담당자가 안내드립니다.</p>
+      </aside>
+    </div>
+  </section>
 
-        <div class="order-cart-summary" id="order-cart">
-          <h4>장바구니 <span id="order-cart-count">0개</span></h4>
-          <ul id="order-cart-list"></ul>
-          <div class="cart-total" id="order-cart-total"></div>
+  <!-- 2단계: 주문서 작성 -->
+  <section class="section checkout-section" id="checkout-view" hidden>
+    <div class="container checkout-layout">
+      <button type="button" class="link-btn back-btn" id="back-to-shop">← 상품 더 담기</button>
+      <h2 class="checkout-title">주문서 작성</h2>
+
+      <div class="form-card checkout-cart">
+        <div class="shop-cart-head">
+          <h3>주문 상품 <span class="cart-badge" id="checkout-count">0</span></h3>
+        </div>
+        <ul class="cart-lines" id="checkout-lines"></ul>
+        <div class="cart-total" id="checkout-total"></div>
+      </div>
+
+      <form id="order-form" class="form-card" novalidate>
+        <div class="form-row">
+          <div class="field full">
+            <label>주문 유형 <span class="required">*</span></label>
+            <div class="pay-options">
+              <label class="pay-option active"><input type="radio" name="buyer-type" value="개인" checked /> 개인 구매</label>
+              <label class="pay-option"><input type="radio" name="buyer-type" value="사업자" /> 사업자(거래처) 구매</label>
+            </div>
+          </div>
         </div>
 
-        <div class="form-card" id="order-info" style="margin-top:20px;">
-          <h3 style="font-size:20px; font-weight:800; color:var(--color-dark); margin-bottom:6px;">주문 정보 입력</h3>
-          <p style="color:var(--color-text-light); font-size:14px; margin-bottom:24px;">개인 고객과 사업자(거래처) 모두 주문할 수 있습니다.</p>
-
-          <div class="form-row">
-            <div class="field full">
-              <label>주문 유형 <span class="required">*</span></label>
-              <div class="pay-options" id="buyer-options">
-                <label class="pay-option active">
-                  <input type="radio" name="buyer-type" value="개인" checked /> 개인 구매
-                </label>
-                <label class="pay-option">
-                  <input type="radio" name="buyer-type" value="사업자" /> 사업자(거래처) 구매
-                </label>
-              </div>
-            </div>
+        <div class="form-row" id="business-row" hidden>
+          <div class="field full">
+            <label for="order-company">상호명</label>
+            <input type="text" id="order-company" placeholder="예: 해밀분식" autocomplete="organization" />
           </div>
-
-          <div class="form-row" id="business-row" hidden>
-            <div class="field full">
-              <label for="order-company">상호명</label>
-              <input type="text" id="order-company" name="order-company" placeholder="예: 해밀분식" />
-            </div>
-          </div>
-
-          <div class="form-row">
-            <div class="field">
-              <label for="order-name">주문자명 <span class="required">*</span></label>
-              <input type="text" id="order-name" name="order-name" placeholder="홍길동" autocomplete="name" required />
-            </div>
-            <div class="field">
-              <label for="order-phone">연락처 <span class="required">*</span></label>
-              <input type="tel" id="order-phone" name="order-phone" placeholder="010-0000-0000" autocomplete="tel" required />
-            </div>
-          </div>
-          <div class="form-row">
-            <div class="field full">
-              <label for="order-address">배송지 주소 <span class="required">*</span></label>
-              <input type="text" id="order-address" name="order-address" placeholder="도로명 주소와 상세 주소를 입력해 주세요" autocomplete="street-address" required />
-            </div>
-          </div>
-          <div class="form-row">
-            <div class="field full">
-              <label>결제 방법 <span class="required">*</span></label>
-              <div class="pay-options" id="pay-options">
-                <label class="pay-option active">
-                  <input type="radio" name="pay-method" value="계좌이체" checked /> 계좌이체
-                </label>
-                <label class="pay-option">
-                  <input type="radio" name="pay-method" value="카드결제" /> 카드결제
-                </label>
-                <label class="pay-option">
-                  <input type="radio" name="pay-method" value="현장결제" /> 현장결제 (카드·현금)
-                </label>
-              </div>
-            </div>
-          </div>
-
-          <div class="pay-detail" id="pay-detail-계좌이체">
-            <div class="order-summary">
-              <div>입금 은행: 국민은행 (예시)</div>
-              <div>계좌번호: 123456-78-901234 (예시)</div>
-              <div>예금주: 주식회사 해밀푸드</div>
-            </div>
-            <p class="form-note">위 계좌 정보는 예시입니다. 실제 입금 계좌는 주문 확인 후 담당자가 다시 안내드립니다.</p>
-          </div>
-
-          <div class="pay-detail" id="pay-detail-카드결제" hidden>
-            <p class="form-note">카드결제는 이 페이지에서 카드 정보를 직접 입력받지 않습니다. 주문 접수 후 담당자가 안전한 결제 페이지 링크를 별도로 안내드립니다.</p>
-          </div>
-
-          <div class="pay-detail" id="pay-detail-현장결제" hidden>
-            <div class="form-row" style="margin-bottom:0;">
-              <div class="field">
-                <label for="order-onsite-type">현장결제 수단</label>
-                <select id="order-onsite-type" name="order-onsite-type">
-                  <option value="카드">카드</option>
-                  <option value="현금">현금</option>
-                </select>
-              </div>
-            </div>
-            <p class="form-note" style="margin-top:14px;">배송 또는 방문 수령 시 현장에서 결제합니다.</p>
-          </div>
-
-          <div class="form-row" style="margin-top:16px;">
-            <div class="field full">
-              <label for="order-note">비고</label>
-              <textarea id="order-note" name="order-note" placeholder="배송 희망일, 포장 요청사항 등 자유롭게 남겨주세요."></textarea>
-            </div>
-          </div>
-
-          <button type="submit" class="btn btn-primary" style="width:100%;">주문하기</button>
-          <p class="form-note">실제 결제(계좌이체 입금 확인·카드 결제 링크 발송)는 담당자가 주문 확인 후 별도로 안내드립니다.</p>
-          <p id="order-status" class="form-status"></p>
         </div>
+
+        <div class="form-row">
+          <div class="field">
+            <label for="order-name">주문자명 <span class="required">*</span></label>
+            <input type="text" id="order-name" placeholder="홍길동" autocomplete="name" required />
+          </div>
+          <div class="field">
+            <label for="order-phone">연락처 <span class="required">*</span></label>
+            <input type="tel" id="order-phone" placeholder="010-0000-0000" autocomplete="tel" inputmode="tel" required />
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="field">
+            <label for="order-address">배송지 주소 <span class="required">*</span></label>
+            <input type="text" id="order-address" placeholder="도로명 주소와 상세 주소" autocomplete="street-address" required />
+          </div>
+          <div class="field">
+            <label for="order-date">희망 배송일</label>
+            <input type="date" id="order-date" />
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="field full">
+            <label>결제 방법 <span class="required">*</span></label>
+            <div class="pay-options">
+              <label class="pay-option active"><input type="radio" name="pay-method" value="계좌이체" checked /> 계좌이체</label>
+              <label class="pay-option"><input type="radio" name="pay-method" value="카드결제" /> 카드결제</label>
+              <label class="pay-option"><input type="radio" name="pay-method" value="현장결제" /> 현장결제 (카드·현금)</label>
+            </div>
+          </div>
+        </div>
+
+        <div class="pay-detail" id="pay-detail-계좌이체">
+          <div class="order-summary">
+            <div>입금 은행: 국민은행 (예시)</div>
+            <div>계좌번호: 123456-78-901234 (예시)</div>
+            <div>예금주: 주식회사 해밀푸드</div>
+          </div>
+          <p class="form-note">위 계좌 정보는 예시입니다. 실제 입금 계좌는 주문 확인 후 담당자가 다시 안내드립니다.</p>
+        </div>
+        <div class="pay-detail" id="pay-detail-카드결제" hidden>
+          <p class="form-note">카드 정보는 이 페이지에서 입력받지 않습니다. 주문 접수 후 안전한 결제 링크를 별도로 안내드립니다.</p>
+        </div>
+        <div class="pay-detail" id="pay-detail-현장결제" hidden>
+          <div class="form-row" style="margin-bottom:0;">
+            <div class="field">
+              <label for="order-onsite-type">현장결제 수단</label>
+              <select id="order-onsite-type">
+                <option value="카드">카드</option>
+                <option value="현금">현금</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <div class="form-row" style="margin-top:16px;">
+          <div class="field full">
+            <label for="order-note">비고</label>
+            <textarea id="order-note" placeholder="목록에 없는 품목, 포장·배송 요청사항 등을 적어주세요."></textarea>
+          </div>
+        </div>
+
+        <div class="checkout-actions">
+          <button type="submit" class="btn btn-primary">주문 보내기 (이메일)</button>
+          <button type="button" class="btn btn-outline" id="copy-order">주문내용 복사 (카톡용)</button>
+        </div>
+        <p class="form-note">"주문내용 복사"를 누른 뒤 카카오톡 채팅방에 붙여넣으면 그대로 주문이 전달됩니다. 결제는 담당자가 주문 확인 후 안내드립니다.</p>
+        <p id="order-status" class="form-status" role="status"></p>
       </form>
     </div>
   </section>
@@ -229,8 +254,9 @@
 
 <div class="cart-bar" id="cart-bar" hidden>
   <span id="cart-bar-text">장바구니 0개</span>
-  <a href="#order-info" class="btn btn-primary btn-sm">주문하기</a>
+  <button type="button" class="btn btn-primary btn-sm" id="cart-bar-go">주문서 작성</button>
 </div>
+<div class="toast" id="toast" role="status" aria-live="polite" hidden></div>
 
 <script src="js/catalog.js"></script>
 <script src="js/main.js"></script>
