@@ -699,7 +699,11 @@ function initOrderForm() {
   };
   const payDetails = form.querySelectorAll(".pay-detail");
   bindChoice("pay-method", (v) => payDetails.forEach((d) => (d.hidden = d.id !== `pay-detail-${v}`)));
-  bindChoice("buyer-type", (v) => ($("#business-row").hidden = v !== "사업자"));
+  const isBusiness = () => form.querySelector('input[name="buyer-type"]:checked')?.value === "사업자";
+  bindChoice("buyer-type", (v) => {
+    $("#business-row").hidden = v !== "사업자";
+    if (v === "사업자" && document.activeElement?.name === "buyer-type") $("#order-company").focus();
+  });
 
   /* ---------- 주문서 텍스트 ---------- */
   const val = (sel) => form.querySelector(sel)?.value.trim() || "";
@@ -720,7 +724,9 @@ function initOrderForm() {
       .trim();
     return [
       "[해밀푸드 주문서]",
-      `주문 유형: ${buyerType}${buyerType === "사업자" && val("#order-company") ? ` (상호: ${val("#order-company")})` : ""}`,
+      `주문 유형: ${buyerType === "사업자" ? "사업자(거래처)" : "개인"}`,
+      ...(buyerType === "사업자" ? [`매장명: ${val("#order-company")}`] : []),
+      ...(buyerType === "사업자" && val("#order-email") ? [`이메일: ${val("#order-email")}`] : []),
       `주문자: ${val("#order-name")} / ${val("#order-phone")}`,
       `배송지: ${val("#order-address")}`,
       `희망 배송일: ${val("#order-date") || "-"}`,
@@ -740,10 +746,17 @@ function initOrderForm() {
       return false;
     }
     const missing = [
+      ...(isBusiness() ? [["#order-company", "매장명"]] : []),
       ["#order-name", "주문자명"],
       ["#order-phone", "연락처"],
       ["#order-address", "배송지 주소"],
     ].filter(([sel]) => !val(sel));
+    const email = val("#order-email");
+    if (isBusiness() && email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      showStatus(status, "이메일 형식을 확인해 주세요. (선택 항목이라 비워두셔도 됩니다)", false);
+      $("#order-email").focus();
+      return false;
+    }
     if (missing.length) {
       showStatus(status, `다음 항목을 입력해 주세요: ${missing.map((m) => m[1]).join(", ")}`, false);
       $(missing[0][0]).focus();
@@ -773,7 +786,8 @@ function initOrderForm() {
     e.preventDefault();
     if (!validate()) return;
     const text = buildOrderText();
-    const subject = encodeURIComponent(`[해밀푸드 주문] ${val("#order-name")} (${cart.length}개 품목)`);
+    const who = isBusiness() && val("#order-company") ? `${val("#order-company")} ${val("#order-name")}` : val("#order-name");
+    const subject = encodeURIComponent(`[해밀푸드 주문] ${who} (${cart.length}개 품목)`);
     rememberOrder();
     window.location.href = `mailto:info@hamilfood.co.kr?subject=${subject}&body=${encodeURIComponent(text)}`;
     showStatus(
