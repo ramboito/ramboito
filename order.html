@@ -95,7 +95,7 @@
         <ul class="cart-lines" id="cart-lines"></ul>
         <div class="cart-total" id="cart-total"></div>
         <button type="button" class="btn btn-primary" id="go-checkout" style="width:100%;" disabled>주문서 작성하기</button>
-        <p class="form-note">가격은 주문 확인 후 담당자가 안내드립니다.</p>
+        <p class="form-note">가격이 정해지지 않은 상품은 주문 확인 후 안내드립니다.</p>
       </aside>
     </div>
   </section>
@@ -143,12 +143,19 @@
           </div>
         </div>
         <div class="form-row">
-          <div class="field">
+          <div class="field full">
+            <label>수령 방법 <span class="required">*</span></label>
+            <div class="pay-options" id="ship-options"></div>
+            <p class="form-note" id="ship-note"></p>
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="field" id="address-field">
             <label for="order-address">배송지 주소 <span class="required">*</span></label>
             <input type="text" id="order-address" placeholder="도로명 주소와 상세 주소" autocomplete="street-address" required />
           </div>
           <div class="field">
-            <label for="order-date">희망 배송일</label>
+            <label for="order-date" id="order-date-label">희망 배송일</label>
             <input type="date" id="order-date" />
           </div>
         </div>

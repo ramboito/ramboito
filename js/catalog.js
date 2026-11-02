@@ -5,6 +5,70 @@
 // 형식: [품목명, 규격]  — 규격 예: "800g*20봉" (1봉 800g, 1박스 20봉)
 
 (function () {
+  // ---------------------------------------------------
+  // ① 상품별 상세 정보 (가격·사진·설명) — 품목코드로 입력
+  // ---------------------------------------------------
+  // 품목코드는 온라인주문 화면에 표시되는 코드입니다 (예: JY-01).
+  //  price    : 1봉(1개) 판매가 (원, 부가세 포함)
+  //  boxPrice : 1박스 가격 (생략하면 봉 가격 × 입수로 계산)
+  //  images   : 사진 경로 목록 — assets/products 폴더에 올리고 경로를 적어주세요
+  //  desc     : 상세 설명 (줄바꿈은 \n)
+  //  storage / origin / maker : 보관방법·원산지·제조원 (생략 시 기본 문구)
+  // 값을 비워두면 상세페이지에 "가격 문의", "사진 준비중"으로 표시됩니다.
+  const PRODUCT_INFO = {
+    // 입력 예시 (앞의 // 를 지우면 적용됩니다)
+    // "JY-01": {
+    //   price: 3500,
+    //   boxPrice: 65000,
+    //   images: ["assets/products/JY-01-1.jpg", "assets/products/JY-01-2.jpg"],
+    //   desc: "쫄깃한 식감의 쌀떡볶이 떡입니다.\n해동 후 바로 조리할 수 있습니다.",
+    //   origin: "쌀(국산)",
+    // },
+  };
+
+  // ---------------------------------------------------
+  // ② 배송 정책 — 모든 상품 상세페이지·주문서에 공통 적용
+  // ---------------------------------------------------
+  // ※ 현재 금액·조건은 화면 구성을 위한 임시값입니다. 실제 정책으로 바꿔주세요.
+  const SHIPPING = {
+    cutoff: "평일 오후 2시까지 주문 확인 시 당일 출고 (주말·공휴일 휴무)",
+    methods: [
+      {
+        id: "courier",
+        name: "냉동 택배",
+        fee: 5000,
+        freeOver: 100000,
+        summary: "전국 · 아이스박스+아이스팩 포장",
+        notes: ["주문 1건 기준 배송비입니다. 박스 수가 많으면 추가될 수 있습니다.", "제주·도서산간 지역은 추가 배송비가 발생합니다."],
+      },
+      {
+        id: "direct",
+        name: "냉동탑차 직배송",
+        fee: 0,
+        minOrder: 100000,
+        summary: "인근 지역 사업자 거래처 · 정해진 요일 배송",
+        notes: ["배송 가능 지역과 요일은 주문 확인 후 안내드립니다."],
+      },
+      {
+        id: "pickup",
+        name: "방문 수령",
+        fee: 0,
+        summary: "청룡길 156-104, 해밀푸드빌딩 · 평일 09:00–18:00",
+        notes: ["주문 확인 연락을 받으신 뒤 방문해 주세요."],
+      },
+    ],
+    returns: [
+      "냉동식품 특성상 단순 변심에 의한 교환·반품은 어렵습니다.",
+      "상품 하자·오배송·해동 상태로 도착한 경우 수령 당일 사진과 함께 연락 주시면 교환 또는 환불해 드립니다.",
+      "받으신 즉시 냉동(-18℃ 이하) 보관해 주세요.",
+    ],
+  };
+
+  const CATEGORY_EMOJI = {
+    "순대·편육": "🥓", "햄·소시지": "🌭", "어묵": "🍢", "떡·떡볶이": "🍡", "만두·전병": "🥟",
+    "면·육수·소스": "🍜", "튀김·전·간식": "🍤", "과일·디저트": "🍍", "기타": "📦",
+  };
+
   const BRANDS = [
     {
       name: "진영식품", short: "진영", slug: "JY",
@@ -382,9 +446,29 @@
         nameCho: chosung(normalize(name)),
         searchText: normalize(`${brand.name}${brand.short}${name}${spec}${spec.replace(/(\d)\s*k(?!g)/gi, "$1kg")}${category}${code}`),
         searchCho: chosung(normalize(`${brand.short}${name}`)),
+        emoji: CATEGORY_EMOJI[category] || "📦",
+        ...pickInfo(PRODUCT_INFO[code], parsed.boxCount),
       });
     });
   });
+
+  // PRODUCT_INFO 값을 정리 (잘못된 값은 무시)
+  function pickInfo(info, boxCount) {
+    const num = (v) => (typeof v === "number" && v > 0 ? Math.round(v) : null);
+    info = info || {};
+    const price = num(info.price);
+    return {
+      price,
+      boxPrice: boxCount ? num(info.boxPrice) || (price ? price * boxCount : null) : null,
+      images: Array.isArray(info.images) ? info.images.filter((x) => typeof x === "string" && x) : [],
+      desc: typeof info.desc === "string" ? info.desc : "",
+      storage: info.storage || "냉동 보관 (-18℃ 이하)",
+      origin: info.origin || "상품 포장지 표기 참조",
+      maker: info.maker || "",
+    };
+  }
+
+  const formatWon = (n) => `${Math.round(n).toLocaleString("ko-KR")}원`;
 
   const isChosungQuery = (q) => /^[ㄱ-ㅎ]+$/.test(q);
 
@@ -445,6 +529,22 @@
       const weight = it.unitAmount ? formatAmount(it.unitAmount * pieces, it.amountBase) : "";
       return { head, weight, pieces };
     },
+    // 주문 수량 → 금액 (가격 미입력 시 null)
+    linePrice(it, qty, mode) {
+      if (mode === "box" && it.boxCount) return it.boxPrice ? it.boxPrice * qty : null;
+      return it.price ? it.price * qty : null;
+    },
+    // 수령 방법별 배송비 (상품금액을 모르면 null → "확인 후 안내")
+    shippingFee(methodId, subtotal, allPriced) {
+      const m = SHIPPING.methods.find((x) => x.id === methodId);
+      if (!m) return null;
+      if (!m.fee) return 0;
+      if (m.freeOver && allPriced && subtotal >= m.freeOver) return 0;
+      if (m.freeOver && !allPriced) return null;
+      return m.fee;
+    },
+    shipping: SHIPPING,
+    formatWon,
     formatAmount,
   };
 })();
