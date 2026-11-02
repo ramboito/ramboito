@@ -564,7 +564,8 @@ function initOrderForm() {
       </li>`;
   };
 
-  const shipMethod = () => form.querySelector('input[name="ship-method"]:checked')?.value || C.shipping.methods[0].id;
+  // 배송비는 기본 배송 방법(냉동 택배) 기준으로 계산
+  const shipMethod = () => C.shipping.methods[0].id;
   const summary = () => {
     let grams = 0;
     let ml = 0;
@@ -696,28 +697,6 @@ function initOrderForm() {
     update();
     return update;
   };
-  $("#ship-options").innerHTML = C.shipping.methods
-    .map(
-      (m, i) =>
-        `<label class="pay-option${i ? "" : " active"}"><input type="radio" name="ship-method" value="${m.id}"${i ? "" : " checked"} /> ${escapeHtml(m.name)}${
-          m.fee ? ` <small>${C.formatWon(m.fee)}</small>` : ""
-        }</label>`
-    )
-    .join("");
-  bindChoice("ship-method", (v) => {
-    const m = C.shipping.methods.find((x) => x.id === v);
-    const pickup = v === "pickup";
-    $("#ship-note").textContent = [
-      m.summary,
-      m.freeOver ? `${C.formatWon(m.freeOver)} 이상 무료` : "",
-      m.minOrder ? `최소 주문 ${C.formatWon(m.minOrder)}` : "",
-    ]
-      .filter(Boolean)
-      .join(" · ");
-    $("#address-field").hidden = pickup;
-    $("#order-date-label").textContent = pickup ? "희망 수령일" : "희망 배송일";
-    renderCart();
-  });
   const payDetails = form.querySelectorAll(".pay-detail");
   bindChoice("pay-method", (v) => payDetails.forEach((d) => (d.hidden = d.id !== `pay-detail-${v}`)));
   bindChoice("buyer-type", (v) => ($("#business-row").hidden = v !== "사업자"));
@@ -727,7 +706,6 @@ function initOrderForm() {
   const buildOrderText = () => {
     const buyerType = form.querySelector('input[name="buyer-type"]:checked')?.value || "개인";
     const payMethod = form.querySelector('input[name="pay-method"]:checked')?.value || "-";
-    const pay = payMethod === "현장결제" ? `${payMethod}(${val("#order-onsite-type") || "카드"})` : payMethod;
     const lines = cart.map((l, i) => {
       const it = C.byId(l.id);
       const d = describe(it, l.qty, l.mode);
@@ -740,15 +718,13 @@ function initOrderForm() {
       .replace(/<[^>]+>/g, "")
       .replace(/[ \t]+/g, " ")
       .trim();
-    const ship = C.shipping.methods.find((m) => m.id === shipMethod());
     return [
       "[해밀푸드 주문서]",
       `주문 유형: ${buyerType}${buyerType === "사업자" && val("#order-company") ? ` (상호: ${val("#order-company")})` : ""}`,
       `주문자: ${val("#order-name")} / ${val("#order-phone")}`,
-      `수령 방법: ${ship.name}`,
-      ...(ship.id === "pickup" ? [] : [`배송지: ${val("#order-address")}`]),
-      `${ship.id === "pickup" ? "희망 수령일" : "희망 배송일"}: ${val("#order-date") || "-"}`,
-      `결제 방법: ${pay}`,
+      `배송지: ${val("#order-address")}`,
+      `희망 배송일: ${val("#order-date") || "-"}`,
+      `결제 방법: ${payMethod}`,
       "",
       "■ 주문 상품",
       ...lines,
@@ -766,7 +742,7 @@ function initOrderForm() {
     const missing = [
       ["#order-name", "주문자명"],
       ["#order-phone", "연락처"],
-      ...(shipMethod() === "pickup" ? [] : [["#order-address", "배송지 주소"]]),
+      ["#order-address", "배송지 주소"],
     ].filter(([sel]) => !val(sel));
     if (missing.length) {
       showStatus(status, `다음 항목을 입력해 주세요: ${missing.map((m) => m[1]).join(", ")}`, false);
