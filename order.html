@@ -4,7 +4,7 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>온라인주문 | 해밀푸드</title>
-<meta name="description" content="떡볶이떡, 어묵, 만두, 햄·소시지 등 216개 냉동·분식 식자재를 검색하고 바로 주문하세요." />
+<meta name="description" content="떡볶이떡, 어묵, 만두, 햄·소시지 등 214개 냉동·분식 식자재를 검색하고 바로 주문하세요." />
 <link rel="icon" href="assets/favicon.svg" type="image/svg+xml" />
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700;800;900&display=swap" rel="stylesheet" />
@@ -55,11 +55,17 @@
 
 <main>
 
-  <section class="page-hero page-hero-compact">
-    <div class="container">
-      <div class="breadcrumb">홈 / <span>온라인주문</span></div>
-      <h1>온라인주문</h1>
-      <p><span data-catalog-stat="brands">11</span>개 브랜드 · <span data-catalog-stat="items">216</span>개 품목을 검색해서 바로 담으세요. 개인·사업자 누구나 1봉부터 주문할 수 있습니다.</p>
+  <section class="shop-head">
+    <div class="container shop-head-inner">
+      <div>
+        <h1>온라인주문</h1>
+        <p><span data-catalog-stat="items">214</span>개 품목 · 개인·사업자 누구나 1봉부터 주문할 수 있어요.</p>
+      </div>
+      <ol class="shop-steps" aria-label="주문 순서">
+        <li class="active"><b>1</b>상품 담기</li>
+        <li><b>2</b>주문서 작성</li>
+        <li><b>3</b>주문 전송</li>
+      </ol>
     </div>
   </section>
 
@@ -70,14 +76,20 @@
         <div class="shop-toolbar">
           <div class="search-box">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><line x1="20" y1="20" x2="16.65" y2="16.65"/></svg>
-            <input type="search" id="shop-search" placeholder="품목명·브랜드·초성으로 검색 (예: 쌀떡, 오양 소세지, ㅁㄷ)" aria-label="품목 검색" autocomplete="off" />
+            <input type="search" id="shop-search" placeholder="무엇을 찾으세요? 예: 쌀떡, 오양 소세지, ㅁㄷ" aria-label="품목 검색" autocomplete="off" />
             <button type="button" class="search-clear" id="shop-search-clear" aria-label="검색어 지우기" hidden>✕</button>
           </div>
-          <div class="chip-group chip-scroll" id="shop-categories" role="tablist" aria-label="카테고리"></div>
+          <div class="chip-group shop-cats" id="shop-categories" aria-label="종류"></div>
           <div class="shop-subbar">
             <select id="shop-brand" aria-label="브랜드 선택"></select>
             <span class="shop-count" id="shop-count"></span>
           </div>
+        </div>
+
+        <div class="reorder" id="reorder" hidden>
+          <span class="reorder-icon" aria-hidden="true">↻</span>
+          <p id="reorder-text"></p>
+          <button type="button" class="btn btn-outline btn-sm" id="reorder-btn">그대로 다시 담기</button>
         </div>
 
         <div class="prod-list" id="shop-list"></div>
@@ -263,6 +275,9 @@
   <span id="cart-bar-text">장바구니 0개</span>
   <button type="button" class="btn btn-primary btn-sm" id="cart-bar-go">주문서 작성</button>
 </div>
+<button type="button" class="to-search" id="to-search" aria-label="검색창으로 이동" hidden>
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><line x1="20" y1="20" x2="16.65" y2="16.65"/></svg>
+</button>
 <div class="toast" id="toast" role="status" aria-live="polite" hidden></div>
 
 <script src="js/catalog.js"></script>

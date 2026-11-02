@@ -148,6 +148,7 @@ function initContactForm() {
         `문의 내용:\n${message}`
     );
 
+    rememberOrder();
     window.location.href = `mailto:info@hamilfood.co.kr?subject=${subject}&body=${body}`;
     showStatus(status, "메일 작성 화면으로 이동합니다. 전송을 완료해 주세요.", true);
     form.reset();
@@ -279,7 +280,10 @@ function initOrderForm() {
   searchInput.value = state.q;
 
   catGroup.innerHTML = ["전체", ...C.categories]
-    .map((c) => `<button type="button" class="chip" data-category="${escapeHtml(c)}">${escapeHtml(c)}</button>`)
+    .map((c) => {
+      const n = c === "전체" ? C.items.length : C.items.filter((it) => it.category === c).length;
+      return `<button type="button" class="chip" data-category="${escapeHtml(c)}">${escapeHtml(c)} <span>${n}</span></button>`;
+    })
     .join("");
   brandSelect.innerHTML =
     `<option value="전체">전체 브랜드</option>` +
@@ -287,31 +291,35 @@ function initOrderForm() {
   brandSelect.value = state.brand;
 
   /* ---------- 상품 목록 ---------- */
+  // 한 줄 = 사진 · 이름/규격/가격 · [봉|박스] [담기] → 담으면 바로 [− 수량 +]
+  const findLine = (id, option, mode) => cart.find((l) => cartLineKey(l) === cartLineKey({ id, option, mode }));
+  const rowMode = (row) => row.dataset.mode || "each";
+  const rowOption = (row) => row.querySelector(".prod-option")?.value || "";
+
+  const unitSummary = (it) => {
+    const parts = [];
+    if (it.unitAmount) parts.push(C.unitLabel(it));
+    else parts.push(`규격 ${it.spec}`);
+    if (it.boxCount) parts.push(C.boxLabel(it));
+    return parts.join(" · ");
+  };
+
   const rowHtml = (it) => {
-    const inCart = cart.filter((l) => l.id === it.id);
-    const unitInfo = [C.unitLabel(it), C.boxLabel(it)].filter(Boolean).join(" · ");
     const href = `product.html?id=${encodeURIComponent(it.id)}`;
     const price = priceText(C, it);
     return `
-      <article class="prod-row${inCart.length ? " in-cart" : ""}" data-id="${it.id}">
-        <div class="prod-info">
-          <a class="prod-thumb" href="${href}" tabindex="-1" aria-hidden="true">${productThumb(it)}</a>
-          <div class="prod-text">
-            <div class="prod-meta">
-              <span class="brand-tag">${escapeHtml(it.brand)}</span>
-              <span class="prod-code">${it.code}</span>
-            </div>
-            <h3><a href="${href}">${escapeHtml(it.name)}</a></h3>
-            <p class="prod-spec">규격 ${escapeHtml(it.spec)}<span class="prod-unit">${escapeHtml(unitInfo)}</span></p>
-            <p class="prod-price${price ? "" : " ask"}">${price ? escapeHtml(price) : "가격 문의"}<a href="${href}" class="prod-more">상세보기 ›</a></p>
-            ${inCart.length ? `<p class="prod-incart">✓ 장바구니에 담김</p>` : ""}
-          </div>
+      <article class="prod-row" data-id="${it.id}" data-mode="each">
+        <a class="prod-thumb" href="${href}" tabindex="-1" aria-hidden="true">${productThumb(it)}</a>
+        <div class="prod-text">
+          <h3><a href="${href}">${escapeHtml(it.name)}</a></h3>
+          <p class="prod-sub"><span class="brand-tag">${escapeHtml(it.brand)}</span>${escapeHtml(unitSummary(it))}</p>
+          <p class="prod-price${price ? "" : " ask"}">${price ? escapeHtml(price) : "가격 문의"}<a href="${href}" class="prod-more">상세 ›</a></p>
         </div>
         <div class="prod-buy">
           ${
             it.options
               ? `<select class="prod-option" aria-label="${escapeHtml(it.name)} 옵션">
-                  <option value="">옵션 선택</option>
+                  <option value="">옵션 선택 (${it.options.length})</option>
                   ${it.options.map((o) => `<option value="${escapeHtml(o)}">${escapeHtml(o)}</option>`).join("")}
                 </select>`
               : ""
@@ -325,33 +333,60 @@ function initOrderForm() {
                   </div>`
                 : ""
             }
-            <div class="stepper stepper-sm">
-              <button type="button" data-step="-1" aria-label="수량 줄이기">−</button>
-              <input type="number" min="1" max="999" value="1" class="prod-qty" aria-label="수량" />
-              <button type="button" data-step="1" aria-label="수량 늘리기">+</button>
-            </div>
-            <button type="button" class="btn btn-primary btn-sm prod-add">담기</button>
+            <div class="prod-ctrl"></div>
           </div>
           <p class="prod-calc"></p>
         </div>
       </article>`;
   };
 
-  const updateRowCalc = (row) => {
+  // 장바구니 상태에 맞춰 행의 버튼(담기 ↔ 수량조절)을 갱신
+  const syncRow = (row) => {
     const it = C.byId(row.dataset.id);
-    const mode = row.querySelector(".seg-btn.active")?.dataset.mode || "each";
-    const qty = Math.max(1, parseInt(row.querySelector(".prod-qty").value, 10) || 1);
-    const d = describe(it, qty, mode);
-    const won = C.linePrice(it, qty, mode);
-    row.querySelector(".prod-calc").textContent = `= ${d.head}${d.weight ? ` · ${d.weight}` : ""}${won ? ` · ${C.formatWon(won)}` : ""}`;
+    const mode = rowMode(row);
+    const option = rowOption(row);
+    const line = findLine(it.id, option, mode);
+    const ctrl = row.querySelector(".prod-ctrl");
+    if (line) {
+      ctrl.innerHTML = `
+        <div class="stepper stepper-sm in">
+          <button type="button" data-step="-1" aria-label="수량 줄이기">−</button>
+          <input type="number" min="0" max="999" value="${line.qty}" class="prod-qty" aria-label="수량" />
+          <button type="button" data-step="1" aria-label="수량 늘리기">+</button>
+        </div>`;
+      const d = describe(it, line.qty, mode);
+      const won = C.linePrice(it, line.qty, mode);
+      row.querySelector(".prod-calc").textContent = `✓ 담김 ${d.head}${d.weight ? ` · ${d.weight}` : ""}${won ? ` · ${C.formatWon(won)}` : ""}`;
+    } else {
+      ctrl.innerHTML = `<button type="button" class="btn btn-primary btn-sm prod-add">담기</button>`;
+      const others = cart.filter((l) => l.id === it.id);
+      row.querySelector(".prod-calc").textContent = others.length
+        ? `✓ 담김 ${others.map((l) => `${l.option ? `${l.option} ` : ""}${describe(it, l.qty, l.mode).head}`).join(", ")}`
+        : "";
+    }
+    row.classList.toggle("in-cart", cart.some((l) => l.id === it.id));
   };
+  const syncRows = (id) =>
+    list.querySelectorAll(id ? `.prod-row[data-id="${id}"]` : ".prod-row").forEach(syncRow);
 
+  // 검색어·종류·브랜드 필터가 없으면 종류별로 묶어서 보여줌
   const renderList = () => {
     const results = C.search(state.q, { category: state.category, brand: state.brand });
-    list.innerHTML = results.map(rowHtml).join("");
-    list.querySelectorAll(".prod-row").forEach(updateRowCalc);
+    const grouped = !state.q && state.category === "전체";
+    if (grouped) {
+      list.innerHTML = C.categories
+        .map((cat) => {
+          const items = results.filter((it) => it.category === cat);
+          if (!items.length) return "";
+          return `<h2 class="prod-group" id="group-${escapeHtml(cat)}">${escapeHtml(cat)} <span>${items.length}</span></h2>${items.map(rowHtml).join("")}`;
+        })
+        .join("");
+    } else {
+      list.innerHTML = results.map(rowHtml).join("");
+    }
+    syncRows();
     emptyEl.hidden = results.length > 0;
-    countEl.textContent = `${results.length}개 품목`;
+    countEl.innerHTML = `<b>${results.length}</b>개 품목`;
     searchClear.hidden = !state.q;
     catGroup.querySelectorAll(".chip").forEach((c) => c.classList.toggle("active", c.dataset.category === state.category));
 
@@ -371,6 +406,12 @@ function initOrderForm() {
       renderList();
     }, 120);
   });
+  searchInput.addEventListener("keydown", (e) => {
+    if (e.key === "Enter") {
+      e.preventDefault();
+      searchInput.blur(); // 모바일 키보드 닫기
+    }
+  });
   searchClear.addEventListener("click", () => {
     searchInput.value = "";
     state.q = "";
@@ -382,6 +423,8 @@ function initOrderForm() {
     if (!chip) return;
     state.category = chip.dataset.category;
     renderList();
+    const top = list.getBoundingClientRect().top + window.scrollY - 160;
+    if (window.scrollY > top) window.scrollTo({ top, behavior: "smooth" });
   });
   brandSelect.addEventListener("change", () => {
     state.brand = brandSelect.value;
@@ -389,63 +432,116 @@ function initOrderForm() {
   });
 
   /* ---------- 목록에서 담기 ---------- */
-  const addToCart = (id, option, mode, qty) => {
-    mergeIntoCart(cart, { id, option, mode, qty });
+  const setQty = (it, option, mode, qty) => {
+    const line = findLine(it.id, option, mode);
+    qty = Math.max(0, Math.min(999, qty));
+    if (line) {
+      if (qty === 0) cart.splice(cart.indexOf(line), 1);
+      else line.qty = qty;
+    } else if (qty > 0) {
+      cart.push({ id: it.id, option, mode, qty });
+    }
     saveCart();
     renderCart();
+    syncRows(it.id);
   };
 
   list.addEventListener("click", (e) => {
     const row = e.target.closest(".prod-row");
     if (!row) return;
     const it = C.byId(row.dataset.id);
-    const qtyInput = row.querySelector(".prod-qty");
 
     const seg = e.target.closest(".seg-btn");
     if (seg) {
+      row.dataset.mode = seg.dataset.mode;
       row.querySelectorAll(".seg-btn").forEach((b) => b.classList.toggle("active", b === seg));
-      updateRowCalc(row);
+      syncRow(row);
       return;
     }
-    const step = e.target.closest("[data-step]");
-    if (step) {
-      const next = (parseInt(qtyInput.value, 10) || 1) + Number(step.dataset.step);
-      qtyInput.value = Math.min(999, Math.max(1, next));
-      updateRowCalc(row);
-      return;
-    }
+    const option = rowOption(row);
+    const mode = rowMode(row);
     if (e.target.closest(".prod-add")) {
       const optSelect = row.querySelector(".prod-option");
-      const option = optSelect ? optSelect.value : "";
       if (optSelect && !option) {
         optSelect.classList.add("needs-choice");
         optSelect.focus();
         showToast("옵션을 먼저 선택해 주세요.");
         return;
       }
-      const mode = row.querySelector(".seg-btn.active")?.dataset.mode || "each";
-      const qty = Math.max(1, Math.min(999, parseInt(qtyInput.value, 10) || 1));
-      addToCart(it.id, option, mode, qty);
-      row.classList.add("in-cart");
-      if (!row.querySelector(".prod-incart")) {
-        row.querySelector(".prod-text").insertAdjacentHTML("beforeend", `<p class="prod-incart">✓ 장바구니에 담김</p>`);
-      }
-      qtyInput.value = 1;
-      updateRowCalc(row);
-      showToast(escapeHtml(`${it.name}${option ? `(${option})` : ""} ${describe(it, qty, mode).head} 담았습니다.`));
+      setQty(it, option, mode, 1);
+      showToast(escapeHtml(`${it.name}${option ? `(${option})` : ""} ${describe(it, 1, mode).head} 담았습니다.`));
+      return;
+    }
+    const step = e.target.closest("[data-step]");
+    if (step) {
+      const line = findLine(it.id, option, mode);
+      setQty(it, option, mode, (line ? line.qty : 0) + Number(step.dataset.step));
     }
   });
-  list.addEventListener("input", (e) => {
+  list.addEventListener("change", (e) => {
     const row = e.target.closest(".prod-row");
     if (!row) return;
-    if (e.target.classList.contains("prod-option")) e.target.classList.remove("needs-choice");
-    if (e.target.classList.contains("prod-qty")) updateRowCalc(row);
+    if (e.target.classList.contains("prod-option")) {
+      e.target.classList.remove("needs-choice");
+      syncRow(row);
+    }
+    if (e.target.classList.contains("prod-qty")) {
+      setQty(C.byId(row.dataset.id), rowOption(row), rowMode(row), parseInt(e.target.value, 10) || 0);
+    }
   });
-  list.addEventListener("change", (e) => {
-    if (!e.target.classList.contains("prod-qty")) return;
-    e.target.value = Math.max(1, Math.min(999, parseInt(e.target.value, 10) || 1));
-    updateRowCalc(e.target.closest(".prod-row"));
+  list.addEventListener("keydown", (e) => {
+    if (e.key === "Enter" && e.target.classList.contains("prod-qty")) e.target.blur();
   });
+
+  /* ---------- 지난 주문 다시 담기 ---------- */
+  const LAST_KEY = "hamil-last-order-v1";
+  const reorderBox = $("#reorder");
+  const showReorder = () => {
+    let last = null;
+    try {
+      last = JSON.parse(localStorage.getItem(LAST_KEY) || "null");
+    } catch (e) {
+      last = null;
+    }
+    const lines = last && Array.isArray(last.lines) ? last.lines.filter((l) => C.byId(l.id) && l.qty > 0) : [];
+    reorderBox.hidden = !lines.length;
+    if (!lines.length) return;
+    const d = new Date(last.date);
+    const when = isNaN(d) ? "" : `${d.getMonth() + 1}월 ${d.getDate()}일 · `;
+    const names = lines.slice(0, 3).map((l) => C.byId(l.id).name).join(", ");
+    $("#reorder-text").innerHTML = `<b>지난 주문</b> ${when}${lines.length}개 품목<small>${escapeHtml(names)}${lines.length > 3 ? " 외" : ""}</small>`;
+    $("#reorder-btn").onclick = () => {
+      lines.forEach((l) => mergeIntoCart(cart, l));
+      saveCart();
+      renderCart();
+      syncRows();
+      showToast(`지난 주문 ${lines.length}개 품목을 장바구니에 담았습니다.`);
+    };
+  };
+  const rememberOrder = () => {
+    try {
+      localStorage.setItem(LAST_KEY, JSON.stringify({ date: new Date().toISOString(), lines: cart }));
+    } catch (e) {
+      /* 저장 불가 시 무시 */
+    }
+  };
+
+  // 모바일: 스크롤 후 검색으로 바로 가기
+  const toTop = $("#to-search");
+  if (toTop) {
+    const toolbar = $(".shop-toolbar");
+    window.addEventListener(
+      "scroll",
+      () => {
+        toTop.hidden = $("#shop-view").hidden || toolbar.getBoundingClientRect().bottom > 0;
+      },
+      { passive: true }
+    );
+    toTop.addEventListener("click", () => {
+      window.scrollTo({ top: 0, behavior: "smooth" });
+      setTimeout(() => searchInput.focus({ preventScroll: true }), 350);
+    });
+  }
 
   /* ---------- 장바구니 (사이드 + 주문서) ---------- */
   const lineView = (l, i) => {
@@ -533,7 +629,10 @@ function initOrderForm() {
 
     const onShop = !$("#shop-view").hidden;
     cartBar.hidden = !(onShop && cart.length);
-    $("#cart-bar-text").textContent = `장바구니 ${cart.length}개 품목`;
+    const t = cart.length ? summary() : null;
+    $("#cart-bar-text").innerHTML = `장바구니 <b>${cart.length}</b>개${
+      t && t.subtotal && !t.unpriced ? ` · ${C.formatWon(t.subtotal)}` : t && t.weight ? ` · ${t.weight}` : ""
+    }`;
     document.body.classList.toggle("has-cart-bar", !cartBar.hidden);
   };
 
@@ -552,28 +651,29 @@ function initOrderForm() {
     }
     saveCart();
     renderCart();
+    syncRows(line.id);
     if (!cart.length && !$("#checkout-view").hidden) showView("shop");
-    if (!cart.some((l) => l.id === line.id)) {
-      const row = list.querySelector(`.prod-row[data-id="${line.id}"]`);
-      row?.classList.remove("in-cart");
-      row?.querySelector(".prod-incart")?.remove();
-    }
   };
   $("#cart-lines").addEventListener("click", onCartClick);
   $("#checkout-lines").addEventListener("click", onCartClick);
 
   $("#cart-clear").addEventListener("click", () => {
     if (!confirm("장바구니를 모두 비울까요?")) return;
-    cart = [];
+    cart.length = 0;
     saveCart();
     renderCart();
-    renderList();
+    syncRows();
   });
 
   /* ---------- 단계 전환: 상품 담기 ↔ 주문서 ---------- */
   const showView = (view) => {
     $("#shop-view").hidden = view !== "shop";
     $("#checkout-view").hidden = view !== "checkout";
+    document.querySelectorAll(".shop-steps li").forEach((li, i) => {
+      li.classList.toggle("active", (view === "shop" ? 0 : 1) === i);
+      li.classList.toggle("done", view === "checkout" && i === 0);
+    });
+    if ($("#to-search")) $("#to-search").hidden = true;
     renderCart();
     window.scrollTo({ top: 0, behavior: "smooth" });
     if (view === "checkout") setTimeout(() => $("#order-name").focus({ preventScroll: true }), 300);
@@ -582,7 +682,7 @@ function initOrderForm() {
   $("#cart-bar-go").addEventListener("click", () => showView("checkout"));
   $("#back-to-shop").addEventListener("click", () => {
     showView("shop");
-    renderList();
+    syncRows();
   });
 
   /* ---------- 라디오 선택(주문 유형·결제) ---------- */
@@ -689,6 +789,7 @@ function initOrderForm() {
       document.execCommand("copy");
       ta.remove();
     }
+    rememberOrder();
     showStatus(status, "주문 내용을 복사했습니다. 카카오톡 채팅방에 붙여넣어 보내주세요.", true);
   });
 
@@ -697,6 +798,7 @@ function initOrderForm() {
     if (!validate()) return;
     const text = buildOrderText();
     const subject = encodeURIComponent(`[해밀푸드 주문] ${val("#order-name")} (${cart.length}개 품목)`);
+    rememberOrder();
     window.location.href = `mailto:info@hamilfood.co.kr?subject=${subject}&body=${encodeURIComponent(text)}`;
     showStatus(
       status,
@@ -711,6 +813,7 @@ function initOrderForm() {
   const addId = params.get("add");
   renderList();
   renderCart();
+  showReorder();
   if (params.get("view") === "checkout" && cart.length) showView("checkout");
   if (addId && C.byId(addId)) {
     const row = list.querySelector(`.prod-row[data-id="${addId}"]`);
